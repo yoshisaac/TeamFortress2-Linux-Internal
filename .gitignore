@@ -1,0 +1,8 @@
+# Emacs files
+*~
+
+# Binary
+tf2.so
+
+# Objects
+*.o
