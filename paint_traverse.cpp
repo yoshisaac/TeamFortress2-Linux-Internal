@@ -78,8 +78,8 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
     */
 
     if (config.esp.master == true) {
-      float box_offset = (13000/distance) * (float(localplayer->get_default_fov())/float(localplayer->get_fov()));
-    
+      float box_offset = (screen.y - screen_offset.y)/4;
+      
       //right side
       surface->draw_line(screen.x + box_offset, screen.y, screen.x + box_offset, screen_offset.y);
 
