@@ -4,7 +4,7 @@ MAKEFLAGS := --jobs=$(shell nproc)
 
 CFLAGS= -shared -fpic
 
-LDFLAGS= #-l:libGLEW.so.2.1 -lSDL2
+LDFLAGS= -l:libGLEW.so.2.1 -lSDL2
 
 OBJ_FILES=$(shell find . -name '*.cpp' | sed -e "s/.\///" | sed -e "s/$$/.o/") # Build all .cpp files
 OBJ_FILES=main.cpp.o

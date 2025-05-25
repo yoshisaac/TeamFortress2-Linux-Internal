@@ -1,3 +1,6 @@
+#ifndef DEBUG_OVERLAY_HPP
+#define DEBUG_OVERLAY_HPP
+
 #include "vec.hpp"
 
 class DebugOverlay {
@@ -14,3 +17,5 @@ public:
 };
 
 static inline DebugOverlay* overlay;
+
+#endif

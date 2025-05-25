@@ -3,8 +3,6 @@
 LIB_PATH=$(pwd)/tf2.so
 PROCID=$(pgrep tf_linux64 | head -n 1)
 
-rm -f /tmp/tf2.log
-
 unload() {
     echo -e "\nUnloading library with handle $LIB_HANDLE"
     
