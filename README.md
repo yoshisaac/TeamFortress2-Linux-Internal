@@ -48,8 +48,7 @@ $ sudo ./inject
 * Head aimbot
 
 # TODO
-* Finish partitioning project files and seperating sub-systems
-* Add menu with SDL
+* Make better menu with SDL+IMGUI
 * Better boxes
 * Add screenshots to README.md
 * Add packages

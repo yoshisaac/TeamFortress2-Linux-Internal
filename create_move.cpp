@@ -3,6 +3,8 @@
 #include "engine.hpp"
 #include "entity_list.hpp"
 
+#include "config.hpp"
+
 #include "vec.hpp"
 #include "print.hpp"
 
@@ -98,7 +100,7 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 	target_player = nullptr;
       }
       
-      if ((user_cmd->buttons & 1) != 0 && target_player != nullptr) 
+      if (config.aimbot.master == true && (user_cmd->buttons & 1) != 0 && target_player != nullptr) 
 	user_cmd->view_angles = view_angles;
 
     }

@@ -115,12 +115,12 @@ void watermark(nk_context* ctx) {
 
 
 void swap_window_hook(SDL_Window* window) {
-  static struct nk_context* ctx = NULL;
-  static SDL_GLContext original_ctx, new_ctx;
+  static struct nk_context* context = NULL;
+  static SDL_GLContext original_context, new_context;
 
-  if (!ctx) {
-    original_ctx = SDL_GL_GetCurrentContext();
-    new_ctx = SDL_GL_CreateContext(window);
+  if (!context) {
+    original_context = SDL_GL_GetCurrentContext();
+    new_context = SDL_GL_CreateContext(window);
 
     GLenum err = glewInit();
     if (err != GLEW_OK) {
@@ -129,21 +129,21 @@ void swap_window_hook(SDL_Window* window) {
       return;
     }
     
-    ctx = nk_sdl_init(window);
+    context = nk_sdl_init(window);
 
-    set_style(ctx);
+    set_style(context);
         
     struct nk_font_atlas* atlas = NULL;
     nk_sdl_font_stash_begin(&atlas);
     nk_sdl_font_stash_end();
   }
 
-  SDL_GL_MakeCurrent(window, new_ctx);
-  get_input(ctx);
-  watermark(ctx);
+  SDL_GL_MakeCurrent(window, new_context);
+  get_input(context);
+  watermark(context);
 
   if (menu_focused) {
-    draw_menu(ctx);
+    draw_menu(context);
   }
 
 #define MAX_VERTEX_MEMORY 512 * 1024
@@ -151,9 +151,9 @@ void swap_window_hook(SDL_Window* window) {
 
   nk_sdl_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_MEMORY, MAX_ELEMENT_MEMORY);
 
-  SDL_GL_MakeCurrent(window, original_ctx);
+  SDL_GL_MakeCurrent(window, original_context);
 
-  nk_input_begin(ctx);
+  nk_input_begin(context);
   swap_window_original(window);
-  nk_input_end(ctx);
+  nk_input_end(context);
 }

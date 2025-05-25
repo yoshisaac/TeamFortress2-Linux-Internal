@@ -9,6 +9,8 @@
 #include "debug_overlay.hpp"
 #include "entity_list.hpp"
 
+#include "config.hpp"
+
 #include "math.hpp"
 
 void (*paint_traverse_original)(void*, void*, __int8_t, __int8_t) = NULL;
@@ -74,20 +76,21 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
       surface->draw_print_text(a.c_str(), wcslen(a.c_str()));
     }
     */
-    
-    float box_offset = (13000/distance) * (float(localplayer->get_default_fov())/float(localplayer->get_fov()));
-    
-    //right side
-    surface->draw_line(screen.x + box_offset, screen.y, screen.x + box_offset, screen_offset.y);
 
-    //left side
-    surface->draw_line(screen.x - box_offset, screen.y, screen.x - box_offset, screen_offset.y);
-
-    //top
-    surface->draw_line(screen.x - box_offset, screen_offset.y, screen.x + box_offset, screen_offset.y);
-
-    //bottom
-    surface->draw_line(screen.x - box_offset, screen.y, screen.x + box_offset, screen.y);    
+    if (config.esp.master == true) {
+      float box_offset = (13000/distance) * (float(localplayer->get_default_fov())/float(localplayer->get_fov()));
     
+      //right side
+      surface->draw_line(screen.x + box_offset, screen.y, screen.x + box_offset, screen_offset.y);
+
+      //left side
+      surface->draw_line(screen.x - box_offset, screen.y, screen.x - box_offset, screen_offset.y);
+
+      //top
+      surface->draw_line(screen.x - box_offset, screen_offset.y, screen.x + box_offset, screen_offset.y);
+
+      //bottom
+      surface->draw_line(screen.x - box_offset, screen.y, screen.x + box_offset, screen.y);    
+    }
   }
 }
