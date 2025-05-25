@@ -17,9 +17,7 @@
 void** client_mode_vtable;
 void** vgui_vtable;
 __attribute__((constructor))
-void entry() {  
-  usleep(500000);
-
+void entry() {
   void* client = get_interface("tf/bin/linux64/client.so", "VClient017");
   engine = (Engine*)get_interface("./bin/linux64/engine.so", "VEngineClient014");
   

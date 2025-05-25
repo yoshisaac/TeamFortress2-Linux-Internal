@@ -1,6 +1,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <wchar.h>
+#include <string>
 
 #include "engine.hpp"
 
@@ -12,6 +13,9 @@
 #include "config.hpp"
 
 #include "math.hpp"
+#include "print.hpp"
+
+#include "esp.cpp"
 
 void (*paint_traverse_original)(void*, void*, __int8_t, __int8_t) = NULL;
 
@@ -26,12 +30,13 @@ const char* get_panel_name(void* panel) {
 
 
 void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t allow_force) {
-  const char* panel_name = get_panel_name(panel);
+  std::string panel_name = get_panel_name(panel);
 
   paint_traverse_original(me, panel, force_repaint, allow_force);
 
-
-  if (strcmp(panel_name, "FocusOverlayPanel") != 0) {
+  //print("%s\n", panel_name.c_str());
+  
+  if (panel_name != "MatSystemTopPanel") {
     return;
   }
 
@@ -43,8 +48,10 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
   Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
   
   for (unsigned int i = 1; i <= entity_list->get_max_entities(); ++i) {
-    Player* player = entity_list->player_from_index(i);
 
+    if (config.esp.master == false) continue;
+    Player* player = entity_list->player_from_index(i);
+    
     if (player == NULL || player == localplayer) {
       continue;
     }
@@ -60,9 +67,8 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
 
     float distance = distance_3d(localplayer->get_origin(), player->get_origin());
     
-    surface->set_rgba(255, 255, 255, 255);
 
-    Vec3 z_offset = {location.x, location.y, location.z + 82};
+    Vec3 z_offset = {location.x, location.y, player->get_bone_pos(player->get_head_bone()).z + 10};
     Vec3 screen_offset;
     overlay->world_to_screen(&z_offset, &screen_offset);
 
@@ -77,20 +83,7 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
     }
     */
 
-    if (config.esp.master == true) {
-      float box_offset = (screen.y - screen_offset.y)/4;
-      
-      //right side
-      surface->draw_line(screen.x + box_offset, screen.y, screen.x + box_offset, screen_offset.y);
-
-      //left side
-      surface->draw_line(screen.x - box_offset, screen.y, screen.x - box_offset, screen_offset.y);
-
-      //top
-      surface->draw_line(screen.x - box_offset, screen_offset.y, screen.x + box_offset, screen_offset.y);
-
-      //bottom
-      surface->draw_line(screen.x - box_offset, screen.y, screen.x + box_offset, screen.y);    
-    }
+    box_esp(screen, screen_offset);
+    health_bar_esp(screen, screen_offset, player);
   }
 }

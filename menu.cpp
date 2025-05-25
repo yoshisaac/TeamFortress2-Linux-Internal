@@ -10,6 +10,9 @@ void draw_aim_tab(struct nk_context* ctx) {
 void draw_esp_tab(struct nk_context* ctx) {
   NK_HEADER_ROW(ctx, "ESP", NK_TEXT_LEFT); {
     NK_CHECKBOX_ROW(ctx, "Master", &config.esp.master);
+    NK_CHECKBOX_ROW(ctx, "Box", &config.esp.box);
+    NK_CHECKBOX_ROW(ctx, "Health Bar", &config.esp.health_bar);
+    
   }  
 }
 
