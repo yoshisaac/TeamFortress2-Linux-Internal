@@ -18,6 +18,8 @@ void** client_mode_vtable;
 void** vgui_vtable;
 __attribute__((constructor))
 void entry() {
+  usleep(50000);
+  
   void* client = get_interface("tf/bin/linux64/client.so", "VClient017");
   engine = (Engine*)get_interface("./bin/linux64/engine.so", "VEngineClient014");
   
@@ -27,7 +29,6 @@ void entry() {
   overlay = (DebugOverlay*)get_interface("./bin/linux64/engine.so", "VDebugOverlay003");
   
   entity_list = (EntityList*)get_interface("./tf/bin/linux64/client.so", "VClientEntityList003");
-
   
   void** client_vtable = *(void ***)client;
   void *hud_process_input_addr = client_vtable[10];
@@ -55,12 +56,8 @@ void entry() {
   } else {
     print("Holy moly we hooking! x2\n");
   }
-
   
-  unsigned long esp_font = surface->text_create_font();
-  surface->text_set_font_glyph_set(esp_font, "ProggySquare", 14, 400, 0, 0, 0x0);
-  
-  void *lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
+  void* lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
 
   if (!lib_sdl_handle) {
     print("Failed to load SDL2\n");

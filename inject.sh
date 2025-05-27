@@ -22,7 +22,8 @@ trap unload SIGINT
 
 LIB_HANDLE=$(sudo gdb -n --batch -ex "attach $PROCID" \
                   -ex "call ((void * (*) (const char*, int)) dlopen)(\"$LIB_PATH\", 1)" \
-                  -ex "detach" 2> /dev/null | grep -oP '\$1 = \(void \*\) \K0x[0-9a-f]+')
+                  -ex "detach" 2> /dev/null | grep -oP '\$1 = \(void \*\) \K0x[0-9a-f]+'
+	  )
 
 if [ -z "$LIB_HANDLE" ]; then
     echo "Failed to load library"

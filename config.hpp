@@ -19,8 +19,17 @@ struct Aimbot {
 
 struct Esp {
   nk_bool master = true;
-  nk_bool box = true;
-  nk_bool health_bar = true;
+
+  struct Player {
+    nk_bool box = true;
+    nk_bool health_bar = true;    
+  };
+  Player player;
+
+  struct Pickup {
+    nk_bool name = true;
+  };
+  Pickup pickup;
 };
 
 struct Config {

@@ -59,7 +59,8 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 	  player == localplayer || 
 	  player->is_dormant() || 
 	  player->get_team() == localplayer->get_team() ||
-	  player->get_lifestate() != 1) {
+	  player->get_lifestate() != 1
+	  ) {
 	continue;
       }
 

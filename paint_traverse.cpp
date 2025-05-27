@@ -15,7 +15,8 @@
 #include "math.hpp"
 #include "print.hpp"
 
-#include "esp.cpp"
+#include "esp_player.cpp"
+#include "esp_entity.cpp"
 
 void (*paint_traverse_original)(void*, void*, __int8_t, __int8_t) = NULL;
 
@@ -44,46 +45,19 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
     return;
   }
 
-  
-  Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
+  unsigned long esp_font = surface->text_create_font();
+  surface->text_set_font_glyph_set(esp_font, "ProggySquare", 14, 400, 0, 0, 0x0);
+
   
   for (unsigned int i = 1; i <= entity_list->get_max_entities(); ++i) {
-
     if (config.esp.master == false) continue;
+
     Player* player = entity_list->player_from_index(i);
-    
-    if (player == NULL || player == localplayer) {
-      continue;
-    }
+    if (player == nullptr) continue;
 
-    
-    if (player->is_dormant() || player->get_lifestate() != 1 || player->get_team() == localplayer->get_team()) {
-      continue;
-    }
-
-    Vec3 location = player->get_origin();
-    Vec3 screen;
-    if (!overlay->world_to_screen(&location, &screen)) continue;
-
-    float distance = distance_3d(localplayer->get_origin(), player->get_origin());
-    
-
-    Vec3 z_offset = {location.x, location.y, player->get_bone_pos(player->get_head_bone()).z + 10};
-    Vec3 screen_offset;
-    overlay->world_to_screen(&z_offset, &screen_offset);
-
-    /* bone draw ID debug
-    for (unsigned int h = 0; h < 128; ++h) {
-      Vec3 bone = player->get_bone_pos(h);
-      Vec3 bone_screen;
-      overlay->world_to_screen(&bone, &bone_screen);
-      surface->draw_set_text_pos(bone_screen.x, bone_screen.y);
-      std::wstring a = std::to_wstring(h);
-      surface->draw_print_text(a.c_str(), wcslen(a.c_str()));
-    }
-    */
-
-    box_esp(screen, screen_offset);
-    health_bar_esp(screen, screen_offset, player);
+    if (player->get_class_name() == "PLAYER")
+      esp_player(player);
+    else
+      esp_entity(player->to_entity());
   }
 }

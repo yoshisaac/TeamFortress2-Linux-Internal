@@ -1,6 +1,8 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+#include "entity.hpp"
+
 #include "vec.hpp"
 
 enum {
@@ -17,13 +19,8 @@ enum {
 };
 
 
-class Player {
+class Player : public Entity {
 public:
-  Vec3 get_origin(void) {
-    // x + 0x328, y + 0x332, z + 0x346
-    return *(Vec3*)(this + 0x328);
-  }
-  
   int get_health(void) {
     return *(int*)(this + 0xD4);
   }
@@ -31,11 +28,6 @@ public:
   int get_max_health(void) {
     return *(int*)(this + 0x1df8);
   }
-
-  //client.so + 2EBA8F0
-  //          + 2EBA8F4
-  //          + 2EBA9B8
-  //          + 2EBA9BC
 
   int get_default_fov(void) {
     return *(int*)(this + 0x15E4);
@@ -65,20 +57,6 @@ public:
     return *(int*)(this + 0xDC);
   }
   
-  // TODO: Substitute "void*" with real class type
-  void* get_networkable(void) {
-    return (void*)(this + 0x10);
-  }
-
-  bool is_dormant(void) {
-    void *networkable = get_networkable();
-    void **vtable = *(void ***)networkable;
-
-    bool (*is_dormant_fn)(void*) = (bool (*)(void*))vtable[8];
-
-    return is_dormant_fn(networkable);
-  }
-
   Vec3 get_shoot_pos(void) {
     void **vtable = *(void ***)this;
 
@@ -123,8 +101,7 @@ public:
 
     return 0;
   }
-  
-  
+    
   int setup_bones(void *bone_to_world_out, int max_bones, int bone_mask, float current_time) {
     void **vtable = *(void ***)this;
 
@@ -133,9 +110,9 @@ public:
     return setup_bones_fn(this, bone_to_world_out, max_bones, bone_mask, current_time);
   }
 
-
-  
-
+  Entity* to_entity(void) {
+    return (Entity*)this;
+  }
 };
 
 #endif
