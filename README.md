@@ -47,6 +47,9 @@ $ sudo ./inject
 * Box ESP
 * Head aimbot
 
+![ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/ezztbq7e4nyw50nzsi.png)
+![pickups](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/6gcccmv673vq4eie5u.png)
+
 # TODO
 * Make better menu with SDL+IMGUI
 * Better boxes
