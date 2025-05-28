@@ -1,6 +1,8 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
+#include "player.hpp"
+
 #include "vec.hpp"
 
 class Engine {
@@ -32,6 +34,15 @@ public:
 
     return is_in_game_fn(this);
   }
+
+
+  bool get_player_info(int entity_index, player_info* pinfo) {
+    void** vtable = *(void ***)this;
+    bool (*get_player_info_fn)(void*, int, player_info*) = (bool (*)(void*, int, player_info*))vtable[8];
+
+    return get_player_info_fn(this, entity_index, pinfo);
+  }
+
 };
 
 static inline Engine* engine;

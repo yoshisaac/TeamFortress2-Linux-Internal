@@ -18,6 +18,18 @@ enum {
   CLASS_ENGINEER
 };
 
+struct player_info
+{
+	char name[32];
+	int user_id;
+	char guid[33];
+	unsigned long friends_id;
+	char friends_name[32];
+	bool fakeplayer;
+	bool ishltv;
+	unsigned long custom_files[4];
+	unsigned char files_downloaded;
+};
 
 class Player : public Entity {
 public:

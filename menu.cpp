@@ -2,25 +2,37 @@
 #include "config.hpp"
 
 void draw_aim_tab(struct nk_context* ctx) {
-  NK_HEADER_ROW(ctx, "Main", NK_TEXT_LEFT); {
-    NK_CHECKBOX_ROW(ctx, "Master", &config.aimbot.master);
-  }  
+  NK_CHECKBOX_ROW(ctx, "Master", &config.aimbot.master);
+
+  NK_CHECKBOX_ROW(ctx, "Silent", &config.aimbot.silent);    
+
+  char fov_text[32];
+  sprintf(fov_text, "FOV: %.0f\xC2\xB0", config.aimbot.fov);
+  NK_FLOAT_SLIDER_ROW(ctx, fov_text, &config.aimbot.fov, 1.0f, 180.0f, 1.0f); 
+
+  NK_HEADER_ROW(ctx, "General", NK_TEXT_CENTERED); {
+  }
 }
 
-void draw_esp_tab(struct nk_context* ctx) {
-  
+void draw_esp_tab(struct nk_context* ctx) {  
   NK_CHECKBOX_ROW(ctx, "Master", &config.esp.master);
-  NK_HEADER_ROW(ctx, "Player", NK_TEXT_LEFT); {
+  
+  NK_HEADER_ROW(ctx, "Player", NK_TEXT_CENTERED); {
     NK_CHECKBOX_ROW(ctx, "Box", &config.esp.player.box);
     NK_CHECKBOX_ROW(ctx, "Health Bar", &config.esp.player.health_bar);
+    NK_CHECKBOX_ROW(ctx, "Name", &config.esp.player.name);
+    NK_CHECKBOX_ROW(ctx, "Target Indicator", &config.esp.player.target_indicator);
   }
-  NK_HEADER_ROW(ctx, "Pickup", NK_TEXT_LEFT); {
+  
+  NK_HEADER_ROW(ctx, "Pickup", NK_TEXT_CENTERED); {
+    NK_CHECKBOX_ROW(ctx, "Box", &config.esp.pickup.box);
     NK_CHECKBOX_ROW(ctx, "Name", &config.esp.pickup.name);
   }
 }
 
 void draw_misc_tab(struct nk_context* ctx) {
-  NK_HEADER_ROW(ctx, "misc", NK_TEXT_LEFT); {
+  NK_HEADER_ROW(ctx, "General", NK_TEXT_CENTERED); {
+    NK_CHECKBOX_ROW(ctx, "Bhop", &config.misc.bhop);
   }  
 }
 

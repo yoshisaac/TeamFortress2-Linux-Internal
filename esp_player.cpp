@@ -6,10 +6,15 @@
 #include "print.hpp"
 #include "math.hpp"
 
+#include "aimbot.hpp"
+
 #include "surface.hpp"
 #include "debug_overlay.hpp"
 #include "entity_list.hpp"
 #include "engine.hpp"
+
+extern unsigned long esp_player_font;
+
 
 void box_esp_player(Vec3 screen, Vec3 screen_offset) {
   if (config.esp.player.box == true) {
@@ -52,11 +57,38 @@ void health_bar_esp_player(Vec3 screen, Vec3 screen_offset, Player* player) {
       surface->set_rgba(255, 0, 0, 255);
 
   
-    surface->draw_line(screen.x - health_offset - 5, screen.y, screen.x - health_offset - 5, screen_offset.y - ydelta);
+    surface->draw_line(screen.x - health_offset - 3, screen.y, screen.x - health_offset - 3, screen_offset.y - ydelta - 1);
   }
 }
 
-void esp_player(Player* player) {
+void name_esp_player(Vec3 screen, Vec3 screen_offset, Player* player, unsigned int i) {
+  if (config.esp.player.name == true) {
+    player_info pinfo;
+    if (!engine->get_player_info(i, &pinfo)) return;
+  
+
+    wchar_t name[32];
+    size_t len = mbstowcs(name, pinfo.name, 32);
+    if (len == (size_t)-1) return;
+
+    surface->draw_set_text_color(255, 255, 255, 255);
+    surface->draw_set_text_pos(screen.x - (wcslen(name)/2 * surface->get_character_width(esp_player_font, 'A')) , screen_offset.y - 12);  
+
+    surface->draw_print_text(name, wcslen(name));
+  }
+}
+
+void flags_esp_player(Vec3 screen, Vec3 screen_offset, Player* player) {
+  if (config.esp.player.target_indicator == true && player == Aimbot::target_player) {
+    surface->draw_set_text_color(255, 0, 0, 255);
+    float flags_offset = (screen.y - screen_offset.y)/4;
+    surface->draw_set_text_pos(screen.x + flags_offset + surface->get_character_width(esp_player_font, 'A'), screen_offset.y);
+
+    surface->draw_print_text(L"TARGET", wcslen(L"TARGET"));
+  }
+}
+
+void esp_player(unsigned int i, Player* player) {
   Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
     
   if (player == localplayer ||
@@ -91,4 +123,6 @@ void esp_player(Player* player) {
 
   box_esp_player(screen, screen_offset);
   health_bar_esp_player(screen, screen_offset, player);
+  flags_esp_player(screen, screen_offset, player);
+  name_esp_player(screen, screen_offset, player, i);
 }

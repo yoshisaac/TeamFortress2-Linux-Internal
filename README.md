@@ -44,14 +44,17 @@ $ sudo ./inject
 ```
 
 # Features
-* Box ESP
+* Player ESP
+  - Box
+  - Name
+  - Health
+  - Flags
 * Head aimbot
+* Bhop
 
-![ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/ezztbq7e4nyw50nzsi.png)
-![pickups](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/6gcccmv673vq4eie5u.png)
+![ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/ida4u6qi6wdj7qs3l4.png)
+![pickups](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/6jhjaiseb021kvef5b.png)
 
 # TODO
 * Make better menu with SDL+IMGUI
-* Better boxes
-* Add screenshots to README.md
 * Add packages

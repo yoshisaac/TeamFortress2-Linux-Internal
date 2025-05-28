@@ -7,13 +7,9 @@
 
 #include "player.hpp"
 #include "surface.hpp"
-#include "debug_overlay.hpp"
 #include "entity_list.hpp"
 
 #include "config.hpp"
-
-#include "math.hpp"
-#include "print.hpp"
 
 #include "esp_player.cpp"
 #include "esp_entity.cpp"
@@ -28,6 +24,9 @@ const char* get_panel_name(void* panel) {
 
     return get_panel_name_fn(vgui, panel);
 }
+
+extern unsigned long esp_entity_font = 0;
+extern unsigned long esp_player_font = 0;
 
 
 void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t allow_force) {
@@ -45,10 +44,21 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
     return;
   }
 
-  unsigned long esp_font = surface->text_create_font();
-  surface->text_set_font_glyph_set(esp_font, "ProggySquare", 14, 400, 0, 0, 0x0);
+  if (esp_player_font == 0) {
+    esp_player_font = surface->text_create_font();
+    surface->text_set_font_glyph_set(esp_player_font, "ProggySquare", 14, 400, 0, 0, 0x0);
+  }
 
   
+  if (esp_entity_font == 0) {
+    esp_entity_font = surface->text_create_font();
+    surface->text_set_font_glyph_set(esp_entity_font, "ProggySquare", 14, 400, 0, 0, 0x0);
+  }
+
+  
+  
+  surface->draw_set_text_font(esp_player_font);
+    
   for (unsigned int i = 1; i <= entity_list->get_max_entities(); ++i) {
     if (config.esp.master == false) continue;
 
@@ -56,8 +66,8 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
     if (player == nullptr) continue;
 
     if (player->get_class_name() == "PLAYER")
-      esp_player(player);
+      esp_player(i, player);
     else
-      esp_entity(player->to_entity());
+      esp_entity(i, player->to_entity());
   }
 }

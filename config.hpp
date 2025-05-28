@@ -13,8 +13,12 @@
 #include "nuklear/nuklear.h"
 #include "nuklear/nuklear_sdl_gl3.h"
 
-struct Aimbot {
+struct Aim {
   nk_bool master = false;
+
+  nk_bool silent = true;
+
+  float fov = 45;
 };
 
 struct Esp {
@@ -23,18 +27,26 @@ struct Esp {
   struct Player {
     nk_bool box = true;
     nk_bool health_bar = true;    
+    nk_bool name = true;
+    nk_bool target_indicator = true;
   };
   Player player;
 
   struct Pickup {
+    nk_bool box = false;    
     nk_bool name = true;
   };
   Pickup pickup;
 };
 
+struct Misc {
+  nk_bool bhop = true;
+};
+
 struct Config {
-  Aimbot aimbot;
+  Aim aimbot;
   Esp esp;
+  Misc misc;
 };
 
 inline static Config config;

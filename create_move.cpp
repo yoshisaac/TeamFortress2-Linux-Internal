@@ -8,6 +8,7 @@
 #include "vec.hpp"
 #include "print.hpp"
 
+#include "aimbot.hpp"
 
 struct user_cmd {
   void *vmt;
@@ -27,7 +28,64 @@ struct user_cmd {
   bool has_been_predicted;
 };
 
+enum in_buttons {
+  IN_ATTACK = (1 << 0),
+  IN_JUMP = (1 << 1),
+  IN_DUCK = (1 << 2),
+  IN_FORWARD = (1 << 3),
+  IN_BACK = (1 << 4),
+  IN_USE = (1 << 5),
+  IN_CANCEL = (1 << 6),
+  IN_LEFT = (1 << 7),
+  IN_RIGHT = (1 << 8),
+  IN_MOVELEFT = (1 << 9),
+  IN_MOVERIGHT = (1 << 10),
+  IN_ATTACK2 = (1 << 11),
+  IN_RUN = (1 << 12),
+  IN_RELOAD = (1 << 13),
+  IN_ALT1 = (1 << 14),
+  IN_ALT2 = (1 << 15),
+  IN_SCORE = (1 << 16),
+  IN_SPEED = (1 << 17),
+  IN_WALK = (1 << 18),
+  IN_ZOOM = (1 << 19),
+  IN_WEAPON1 = (1 << 20),
+  IN_WEAPON2 = (1 << 21),
+  IN_BULLRUSH = (1 << 22),
+  IN_GRENADE1 = (1 << 23),
+  IN_GRENADE2 = (1 << 24),
+  IN_ATTACK3 = (1 << 25),
+};
+
 bool (*create_move_original)(void*, float, void*);
+
+void movement_fix(user_cmd* user_cmd, Vec3 original_view_angle, float original_forward_move, float original_side_move) {
+  float yaw_delta = user_cmd->view_angles.y - original_view_angle.y;
+  float original_yaw_correction = 0;
+  float current_yaw_correction = 0;
+
+  if (original_view_angle.y < 0.0f) {
+    original_yaw_correction = 360.0f + original_view_angle.y;
+  } else {
+    original_yaw_correction = original_view_angle.y;
+  }
+    
+  if (user_cmd->view_angles.y < 0.0f) {
+    current_yaw_correction = 360.0f + user_cmd->view_angles.y;
+  } else {
+    current_yaw_correction = user_cmd->view_angles.y;
+  }
+
+  if (current_yaw_correction < original_yaw_correction) {
+    yaw_delta = abs(current_yaw_correction - original_yaw_correction);
+  } else {
+    yaw_delta = 360.0f - abs(original_yaw_correction - current_yaw_correction);
+  }
+  yaw_delta = 360.0f - yaw_delta;
+
+  user_cmd->forwardmove = cos((yaw_delta) * (M_PI/180)) * original_forward_move + cos((yaw_delta + 90.f) * (M_PI/180)) * original_side_move;
+  user_cmd->sidemove = sin((yaw_delta) * (M_PI/180)) * original_forward_move + sin((yaw_delta + 90.f) * (M_PI/180)) * original_side_move;
+}
 
 bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
   bool rc = create_move_original(me, sample_time, user_cmd);
@@ -49,8 +107,6 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
   }
   
   if (user_cmd->tick_count > 1) {
-    
-    Player* target_player = nullptr;
     float smallest_fov_angle = __FLT_MAX__;
 
     for (unsigned int i = 1; i <= entity_list->get_max_entities(); ++i) {
@@ -71,9 +127,9 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 		   player->get_bone_pos(head_bone).y - localplayer->get_shoot_pos().y,
 		   player->get_bone_pos(head_bone).z - localplayer->get_shoot_pos().z};
       
-      float c = sqrt((diff.x * diff.x) + (diff.y * diff.y));
+      float yaw_hyp = sqrt((diff.x * diff.x) + (diff.y * diff.y));
 
-      float pitch_angle = atan2(diff.z, c) * 180 / M_PI;
+      float pitch_angle = atan2(diff.z, yaw_hyp) * 180 / M_PI;
       float yaw_angle = atan2(diff.y, diff.x) * 180 / M_PI;
 
       Vec3 view_angles = {
@@ -94,18 +150,37 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 
       float fov = hypotf(clamped_x, clamped_y);
 
-      if (fov <= 45 && fov < smallest_fov_angle) {
-	target_player = player;
+      if (fov <= config.aimbot.fov && fov < smallest_fov_angle) {
+	Aimbot::target_player = player;
 	smallest_fov_angle = fov;
-      } else {
-	target_player = nullptr;
-      }
-      
-      if (config.aimbot.master == true && (user_cmd->buttons & 1) != 0 && target_player != nullptr) 
+      }	
+
+      if (config.aimbot.master == true && (user_cmd->buttons & 1) != 0 && Aimbot::target_player == player)
 	user_cmd->view_angles = view_angles;
+
+      movement_fix(user_cmd, original_view_angle, original_forward_move, original_side_move);
+
+      
+      static bool was_jumping = false;
+      bool on_ground = (localplayer->get_ent_flags() & FL_ONGROUND);
+
+      if(user_cmd->buttons & IN_JUMP && config.misc.bhop == true) {
+
+	if(!was_jumping && !on_ground) {
+	  user_cmd->buttons &= ~IN_JUMP;
+	} else if(was_jumping) {
+	  was_jumping = false;
+	}
+      
+      } else if(!was_jumping) {
+	was_jumping = true;
+      }
 
     }
   }
-
-  return rc;
+  
+  if (config.aimbot.silent == true)
+    return false;
+  else
+    return rc;
 }

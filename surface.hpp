@@ -19,6 +19,23 @@ public:
     draw_line_fn(this, x1, y1, x2, y2);
   }
 
+  
+  void draw_filled_rect(int x1, int y1, int x2, int y2) {
+    void** vtable = *(void ***)this;
+
+    void (*draw_filled_rect_fn)(void*, int, int, int, int) = (void (*)(void*, int, int, int, int))vtable[12];
+
+    draw_filled_rect_fn(this, x1, y1, x2, y2);
+  }
+
+  void draw_outlined_rect(int x1, int y1, int x2, int y2) {
+    void** vtable = *(void ***)this;
+
+    void (*draw_outlined_rect_fn)(void*, int, int, int, int) = (void (*)(void*, int, int, int, int))vtable[14];
+
+    draw_outlined_rect_fn(this, x1, y1, x2, y2);
+  }
+  
   unsigned long text_create_font(void) {
     void** vtable = *(void ***)this;
 
@@ -36,6 +53,15 @@ public:
     return text_set_font_glyph_set_fn(this, font, name, tall, weight, blur, scanlines, flags, 0, 0);
   }
 
+  int get_character_width(unsigned long font, int character) {
+    void** vtable = *(void ***)this;
+
+    int (*draw_set_text_font_fn)(void*, unsigned long, int) = (int (*)(void*, unsigned long, int))vtable[74];
+
+    return draw_set_text_font_fn(this, font, character);
+  }
+
+  
   void draw_set_text_font(unsigned long font) {
     void** vtable = *(void ***)this;
 
