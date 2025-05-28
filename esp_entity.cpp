@@ -30,6 +30,18 @@ void name_esp_entity(Vec3 screen, Entity* entity) {
       surface->draw_set_text_pos(screen.x - (wcslen(L"HEALTH")/2 * surface->get_character_width(esp_entity_font, 'A')), screen.y - 17);
       surface->draw_print_text(L"HEALTH", wcslen(L"HEALTH"));
     }
+    /*else {
+      std::string model_name = entity->get_model_name();
+      
+      wchar_t model_name_w[64];
+      size_t len = mbstowcs(model_name_w, model_name.c_str(), 64);
+      if (len == (size_t)-1) return;
+      
+      surface->draw_set_text_pos(screen.x, screen.y);
+      surface->draw_print_text(model_name_w, wcslen(model_name_w));
+
+      }
+    */
   }
 }
 

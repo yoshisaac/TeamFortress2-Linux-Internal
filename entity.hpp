@@ -105,7 +105,8 @@ public:
 	model_name == "models/items/medkit_small.mdl"       ||
 	model_name == "models/items/medkit_large_bday.mdl"  ||
 	model_name == "models/items/medkit_medium_bday.mdl" ||
-	model_name == "models/items/medkit_small_bday.mdl"   ) {
+	model_name == "models/items/medkit_small_bday.mdl"  ||
+	model_name == "models/props_medieval/medieval_meat.mdl") {
       return pickup_type::MEDKIT;
     }
 
