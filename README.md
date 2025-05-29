@@ -38,7 +38,7 @@ $ make
 ### Running
 Injecting the program into Team Fortress 2.  
 ```bash
-$ sudo ./inject
+$ sudo ./inject.sh
 [sudo] password for user:
 ...
 Library loaded successfully at 0x12345678900. Use Ctrl+C to unload.
