@@ -1,6 +1,7 @@
 #ifndef PLAYER_LIST_HPP
 #define PLAYER_LIST_HPP
 
+#include "engine.hpp"
 
 #include "entity.hpp"
 #include "player.hpp"
@@ -17,6 +18,10 @@ public:
 
   Player* player_from_index(unsigned int index) {
     return (Player*)entity_from_index(index);
+  }
+
+  Player* get_localplayer(void) {
+    return player_from_index(engine->get_localplayer_index());
   }
   
   int get_max_entities(void) {

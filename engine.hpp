@@ -5,6 +5,24 @@
 
 #include "vec.hpp"
 
+struct user_cmd {
+  void *vmt;
+  int command_number;
+  int tick_count;
+  Vec3 view_angles;
+  float forwardmove;
+  float sidemove;
+  float upmove;
+  int buttons;
+  unsigned char impulse;
+  int weapon_select;
+  int weapon_subtype;
+  int random_seed;
+  short mouse_dx;
+  short mouse_dy;
+  bool has_been_predicted;
+};
+
 class Engine {
 public:
   int get_localplayer_index(void) {
@@ -13,7 +31,6 @@ public:
     
     return get_localplayer_index_fn(this);
   }
-
   
   Vec2 get_screen_size(void) {
     void** vtable = *(void ***)this;

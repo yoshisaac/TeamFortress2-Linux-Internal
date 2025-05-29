@@ -5,8 +5,8 @@
 
 class DebugOverlay {
 public:
-  bool world_to_screen(Vec3 *point, Vec3 *screen) {
-    void **vtable = *(void ***)this;
+  bool world_to_screen(Vec3* point, Vec3* screen) {
+    void** vtable = *(void ***)this;
     
     int (*world_to_screen_fn)(void *, Vec3*, Vec3*) = (int (*)(void*, Vec3*, Vec3*))vtable[9];
     int success = world_to_screen_fn(this, point, screen);

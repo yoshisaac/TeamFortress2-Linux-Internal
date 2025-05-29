@@ -17,8 +17,9 @@ struct Aim {
   nk_bool master = false;
 
   nk_bool silent = true;
-
+  
   float fov = 45;
+  nk_bool draw_fov = false;
 };
 
 struct Esp {
@@ -39,6 +40,14 @@ struct Esp {
   Pickup pickup;
 };
 
+struct Visuals {
+  nk_bool hide_scope = false;
+  nk_bool remove_zoom = false;
+
+  nk_bool override_fov = false;
+  float custom_fov = 90;
+};
+
 struct Misc {
   nk_bool bhop = true;
 };
@@ -46,6 +55,7 @@ struct Misc {
 struct Config {
   Aim aimbot;
   Esp esp;
+  Visuals visuals;
   Misc misc;
 };
 

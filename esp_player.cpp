@@ -10,6 +10,7 @@
 
 #include "surface.hpp"
 #include "debug_overlay.hpp"
+#include "render_view.hpp"
 #include "entity_list.hpp"
 #include "engine.hpp"
 
@@ -109,7 +110,7 @@ void name_esp_player(Vec3 screen, Vec3 screen_offset, Player* player, unsigned i
 }
 
 void flags_esp_player(Vec3 screen, Vec3 screen_offset, Player* player) {
-  if (config.esp.player.target_indicator == true && player == Aimbot::target_player) {
+  if (config.esp.player.target_indicator == true && player == target_player) {
     surface->draw_set_text_color(255, 0, 0, 255);
     float flags_offset = (screen.y - screen_offset.y)/4;
     surface->draw_set_text_pos(screen.x + flags_offset + surface->get_character_width(esp_player_font, 'A'), screen_offset.y);
@@ -130,26 +131,27 @@ void esp_player(unsigned int i, Player* player) {
 
   Vec3 location = player->get_origin();
   Vec3 screen;
-  if (!overlay->world_to_screen(&location, &screen)) return;
+  if (!render_view->world_to_screen(&location, &screen)) return;
 
   float distance = distance_3d(localplayer->get_origin(), player->get_origin());
     
 
   Vec3 z_offset = {location.x, location.y, player->get_bone_pos(player->get_head_bone()).z + 10};
   Vec3 screen_offset;
-  overlay->world_to_screen(&z_offset, &screen_offset);
+  render_view->world_to_screen(&z_offset, &screen_offset);
 
-  /* bone draw ID debug
-     for (unsigned int h = 0; h < 128; ++h) {
-     Vec3 bone = player->get_bone_pos(h);
-     Vec3 bone_screen;
-     overlay->world_to_screen(&bone, &bone_screen);
-     surface->draw_set_text_pos(bone_screen.x, bone_screen.y);
-     std::wstring a = std::to_wstring(h);
-     surface->draw_print_text(a.c_str(), wcslen(a.c_str()));
-     }
+  //bone draw ID debug
+  /* 
+  surface->set_rgba(255, 255, 255, 255);
+  for (unsigned int h = 0; h < 128; ++h) {
+    Vec3 bone = player->get_bone_pos(h);
+    Vec3 bone_screen;
+    overlay->world_to_screen(&bone, &bone_screen);
+    surface->draw_set_text_pos(bone_screen.x, bone_screen.y);
+    std::wstring a = std::to_wstring(h);
+    surface->draw_print_text(a.c_str(), wcslen(a.c_str()));
+  }
   */
-
 
   box_esp_player(screen, screen_offset);
   health_bar_esp_player(screen, screen_offset, player);

@@ -102,6 +102,14 @@ public:
     set_cursor_visible_fn(this, visible);
   }
 
+  void draw_circle(int x, int y, int radius, int segments) {
+    void** vtable = *(void ***)this;
+
+    void (*draw_circle_fn)(void*, int, int, int, int) = (void (*)(void*, int, int, int, int))vtable[99];
+
+    draw_circle_fn(this, x, y, radius, segments);
+  }
+
 };
 
 static inline Surface* surface;

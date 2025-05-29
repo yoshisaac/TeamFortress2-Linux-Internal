@@ -3,15 +3,20 @@
 #include <unistd.h>
 
 #include "engine.hpp"
+#include "client.hpp"
 #include "entity_list.hpp"
 #include "debug_overlay.hpp"
 #include "surface.hpp"
+
+#include "render_view.hpp"
 
 #include "hooks.cpp"
 
 #include "sdl.cpp"
 #include "create_move.cpp"
 #include "paint_traverse.cpp"
+#include "override_view.cpp"
+#include "vec.hpp"
 
 
 void** client_mode_vtable;
@@ -20,7 +25,7 @@ __attribute__((constructor))
 void entry() {
   usleep(50000);
   
-  void* client = get_interface("tf/bin/linux64/client.so", "VClient017");
+  client = (Client*)get_interface("tf/bin/linux64/client.so", "VClient017");
   engine = (Engine*)get_interface("./bin/linux64/engine.so", "VEngineClient014");
   
   vgui = get_interface("./bin/linux64/vgui2.so", "VGUI_Panel009");
@@ -29,6 +34,8 @@ void entry() {
   overlay = (DebugOverlay*)get_interface("./bin/linux64/engine.so", "VDebugOverlay003");
   
   entity_list = (EntityList*)get_interface("./tf/bin/linux64/client.so", "VClientEntityList003");
+
+  render_view = (RenderView*)get_interface("./bin/linux64/engine.so", "VEngineRenderView014");
   
   void** client_vtable = *(void ***)client;
   void *hud_process_input_addr = client_vtable[10];
@@ -38,13 +45,22 @@ void entry() {
 
   client_mode_vtable = *(void***)client_mode_interface;
   
-  create_move_original = (bool (*)(void*, float, void*))client_mode_vtable[22];
+  create_move_original = (bool (*)(void*, float, user_cmd*))client_mode_vtable[22];
 
   if (!write_to_table(client_mode_vtable, 22, (void*)create_move_hook)) {
     print("CreateMove hook failed\n");
   } else {
     print("Holy moly we hooking!\n");
   }
+
+  override_view_original = (void (*)(void*, view_setup*))client_mode_vtable[17];
+  
+  if (!write_to_table(client_mode_vtable, 17, (void*)override_view_hook)) {
+    print("OverrideView hook failed\n");
+  } else {
+    print("Holy moly we hooking! x3\n");
+  }
+  
 
   vgui_vtable = *(void***)vgui;
 
@@ -93,6 +109,10 @@ void exit() {
     print("CreateMove failed to restore hook\n");
   }
 
+  if (!write_to_table(client_mode_vtable, 17, (void*)override_view_original)) {
+    print("CreateMove failed to restore hook\n");
+  }
+    
   if (!write_to_table(vgui_vtable, 42, (void*)paint_traverse_original)) {
     print("PaintTraverse failed to restore hook\n");
   }   

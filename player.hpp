@@ -31,6 +31,10 @@ struct player_info
 	unsigned char files_downloaded;
 };
 
+enum in_cond {
+  IN_ZOOMED = (1<<5),
+};
+
 class Player : public Entity {
 public:
   int get_health(void) {
@@ -77,7 +81,7 @@ public:
     return get_shoot_pos_fn(this);
   }
 
-  int get_player_class(void) {
+  int get_class(void) {
     return *(int*)(this + 0x1BA0);
   }
 
@@ -94,7 +98,7 @@ public:
 
   
   int get_head_bone(void) {
-    int ent_class = this->get_player_class();
+    int ent_class = this->get_class();
 
     switch (ent_class) {
     case CLASS_SCOUT:
@@ -122,6 +126,10 @@ public:
     return setup_bones_fn(this, bone_to_world_out, max_bones, bone_mask, current_time);
   }
 
+  int get_cond_flags(void) {
+    return *(int*)(this + 0x15D8);
+  }
+  
   Entity* to_entity(void) {
     return (Entity*)this;
   }

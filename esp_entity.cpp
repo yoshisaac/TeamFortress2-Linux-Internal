@@ -8,6 +8,7 @@
 
 #include "surface.hpp"
 #include "debug_overlay.hpp"
+#include "render_view.hpp"
 
 extern unsigned long esp_entity_font;
 
@@ -49,7 +50,7 @@ void esp_entity(unsigned int i, Entity* entity) {
   Vec3 location = entity->get_origin();
 
   Vec3 screen;
-  if (!overlay->world_to_screen(&location, &screen)) return;
+  if (!render_view->world_to_screen(&location, &screen)) return;
 
   box_esp_entity(screen, entity);
   name_esp_entity(screen, entity);
