@@ -41,6 +41,7 @@ Injecting the program into Team Fortress 2.
 $ sudo ./inject
 [sudo] password for user:
 ...
+Library loaded successfully at 0x12345678900. Use Ctrl+C to unload.
 ```
 
 # Features
