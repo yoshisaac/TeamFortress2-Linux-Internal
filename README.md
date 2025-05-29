@@ -44,15 +44,18 @@ $ sudo ./inject
 ```
 
 # Features
+* Head aimbot
 * Player ESP
   - Box
   - Name
   - Health
   - Flags
-* Head aimbot
+* Visuals
+  - Remove scope & zoom
+  - Override FOV
 * Bhop
 
-![ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/ub0gznm832evhzqfbi.png)
+![ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/cvhlcwdqwgul2v1ia3.png)
 ![pickups](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/6jhjaiseb021kvef5b.png)
 
 # TODO
