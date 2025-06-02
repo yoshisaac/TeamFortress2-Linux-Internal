@@ -1,11 +1,8 @@
-#include <cmath>
-
 #include "engine.hpp"
 #include "entity_list.hpp"
 
 #include "config.hpp"
 
-#include "vec.hpp"
 #include "print.hpp"
 
 #include "aimbot.cpp"
@@ -42,6 +39,11 @@ enum in_buttons {
 bool (*create_move_original)(void*, float, user_cmd*);
 
 bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
+
+  if (!user_cmd->tick_count) {
+    return true;
+  }
+  
   bool rc = create_move_original(me, sample_time, user_cmd);
 
   if (!engine->is_in_game()) {

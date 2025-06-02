@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 
+#include "config.hpp"
 #include "surface.hpp"
 
 #include "print.hpp"
@@ -10,14 +11,6 @@
 void (*swap_window_original)(void *) = NULL;
 int (*poll_event_original)(SDL_Event *) = NULL;
 
-
-enum input_type
-{
-    INPUT_NONE,
-    INPUT_KEY,
-    INPUT_MOUSE,
-};
-
 inline static bool menu_focused = false;
 
 int poll_event_hook(SDL_Event *event) {
@@ -25,62 +18,25 @@ int poll_event_hook(SDL_Event *event) {
   nk_sdl_handle_event(event);
 
   /*
-  if (ret && nk_sdl_handle_event(event) && menu_focused) {
-    // TBD: Make an array for keybinds
-    if (config.aimbot.key.binding.editing) {
-      const Uint8 *keyboard_state = SDL_GetKeyboardState(NULL);
+  if (ret && nk_sdl_handle_event(event)) {
+    
+    const Uint8* keyboard_state = SDL_GetKeyboardState(NULL);
+    
+    for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
 
-      for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
-	if (keyboard_state[i]) {
-	  if (i == SDL_SCANCODE_ESCAPE) {
-	    config.aimbot.key.binding.code = 0;
-	    config.aimbot.key.binding.type = INPUT_NONE;
-	  } else {
-	    config.aimbot.key.binding.code = i;
-	    config.aimbot.key.binding.type = INPUT_KEY;
-	  }
-	  config.aimbot.key.binding.editing = 0;
-
-	  // TBD: Use SDL_GetScancodeName(i) to pretty print the key in menu
-	  break;
-	}
+      if (keyboard_state[i]) {
+	
       }
     }
 
-    if (config.aimbot.key.binding.editing) {
-      Uint32 mouse_state = SDL_GetMouseState(NULL, NULL);
-            
-      for (int i = SDL_BUTTON_LEFT; i <= SDL_BUTTON_X2; i++) {
-	if (mouse_state & SDL_BUTTON(i)) {
-	  config.aimbot.key.binding.code = i;
-	  config.aimbot.key.binding.type = INPUT_MOUSE;
-	  config.aimbot.key.binding.editing = 0;
-	}
+    Uint32 mouse_state = SDL_GetMouseState(NULL, NULL);            
+    for (int i = SDL_BUTTON_LEFT; i <= SDL_BUTTON_X2; i++) {
+      if (mouse_state & SDL_BUTTON(i)) {
+
       }
     }
-
-    event->type = 0;
 
     return ret;
-  }
-
-  if (config.aimbot.key.binding.type == INPUT_MOUSE) {
-    Uint32 mouse_state = SDL_GetMouseState(NULL, NULL);
-    if (mouse_state & SDL_BUTTON(config.aimbot.key.binding.code)) {
-      config.aimbot.key.is_pressed = true;
-    } else {
-      config.aimbot.key.is_pressed = false;
-    }
-  } else if (config.aimbot.key.binding.type == INPUT_KEY) {
-    const Uint8 *keyboard_state = SDL_GetKeyboardState(NULL);
-    if (keyboard_state && keyboard_state[config.aimbot.key.binding.code]) {
-      config.aimbot.key.is_pressed = true;
-    } else {
-      config.aimbot.key.is_pressed = false;
-    }
-  }
-  else {
-    config.aimbot.key.is_pressed = false;
   }
   */
   
@@ -99,7 +55,7 @@ void set_style(nk_context* ctx) {
 
 
 void get_input(nk_context* ctx) {
-  if (nk_input_is_key_released(&ctx->input, NK_KEY_DEL)) {
+  if (nk_input_is_key_pressed(&ctx->input, NK_KEY_DEL)) {
     menu_focused = !menu_focused;
     surface->set_cursor_visible(menu_focused);
   }
@@ -141,7 +97,7 @@ void swap_window_hook(SDL_Window* window) {
   SDL_GL_MakeCurrent(window, new_context);
   get_input(context);
   watermark(context);
-
+  
   if (menu_focused) {
     draw_menu(context);
   }

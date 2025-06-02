@@ -62,7 +62,7 @@ void aimbot(user_cmd* user_cmd) {
     }
 
     int bone;
-    if (localplayer->get_cond_flags() & 20 && //temp magic number until i find out how the mask works
+    if (localplayer->get_cond_flags() & 20 && //temp magic number until i find out how the mask works and can label each bit
 	localplayer->get_class() == CLASS_SNIPER &&
 	player->get_health() > 50)
       bone = player->get_head_bone();
@@ -95,17 +95,20 @@ void aimbot(user_cmd* user_cmd) {
     float clamped_y = y > 180.0f ? 180.0f : y < -180.0f ? -180.0f : y;
 
     float fov = hypotf(clamped_x, clamped_y);
-
     
-    if (target_player == player && fov > config.aimbot.fov)
-      target_player = nullptr;
-
     if (fov <= config.aimbot.fov && fov < smallest_fov_angle) {
       target_player = player;
       smallest_fov_angle = fov;
     }
+    
+    if (target_player == player && fov > config.aimbot.fov)
+      target_player = nullptr;
+
+    
+    if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && config.aimbot.auto_shoot == true && target_player == player)
+      user_cmd->buttons |= 1;    
       
-    if ((user_cmd->buttons & 1) != 0 && target_player == player)
+    if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && (user_cmd->buttons & 1) != 0 && target_player == player)
       user_cmd->view_angles = view_angles;
 
   }

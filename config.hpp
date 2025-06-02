@@ -1,6 +1,9 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_scancode.h>
+#include <cstdint>
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -13,10 +16,27 @@
 #include "nuklear/nuklear.h"
 #include "nuklear/nuklear_sdl_gl3.h"
 
+
+enum input_type {
+  INPUT_NONE,
+  INPUT_KEY,
+  INPUT_MOUSE,
+};
+
+struct button {
+  int button;
+  input_type button_type;
+};
+
 struct Aim {
   nk_bool master = false;
 
+  nk_bool auto_shoot = true;
+  
   nk_bool silent = true;
+  
+  nk_bool use_key = true;
+  struct button key;
   
   float fov = 45;
   nk_bool draw_fov = false;
@@ -60,5 +80,49 @@ struct Config {
 };
 
 inline static Config config;
+
+
+static bool is_button_down(struct button button) {
+  if (button.button_type == INPUT_KEY) {
+  
+    const uint8_t* keys = SDL_GetKeyboardState(NULL);
+  
+    if (keys[button.button] == 1) {
+      return true;
+    }
+
+    return false;
+  } else if (button.button_type == INPUT_MOUSE) {
+    Uint32 mouse_state = SDL_GetMouseState(NULL, NULL);
+
+    if (mouse_state & SDL_BUTTON(button.button))
+      return true;
+
+    return false;
+
+  }  
+
+  return false;
+}
+
+static void get_button_down(struct button* button) {
+  const Uint8* keyboard_state = SDL_GetKeyboardState(NULL);
+  for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
+    if (keyboard_state[i]) {
+      button->button = i;
+      button->button_type = INPUT_KEY;	
+      break;
+    }
+  }
+    
+  Uint32 mouse_state = SDL_GetMouseState(NULL, NULL);            
+  for (int i = SDL_BUTTON_MIDDLE; i <= SDL_BUTTON_X2; i++) {
+    if (mouse_state & SDL_BUTTON(i)) {
+      button->button = i;
+      button->button_type = INPUT_MOUSE;
+      break;
+    }
+  }
+}
 
 #endif

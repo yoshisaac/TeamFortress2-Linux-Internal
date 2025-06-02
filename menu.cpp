@@ -1,9 +1,37 @@
-
 #include "config.hpp"
+
+#include "print.hpp"
+#include <SDL2/SDL_mouse.h>
 
 void draw_aim_tab(struct nk_context* ctx) {
   NK_CHECKBOX_ROW(ctx, "Master", &config.aimbot.master);
 
+  NK_CHECKBOX_ROW(ctx, "Auto Shoot", &config.aimbot.auto_shoot);
+
+  
+  nk_layout_row_static(ctx, 20, 100, 5);
+  nk_label(ctx, "Aimbot Button: ", NK_TEXT_LEFT);
+  char button_edit_buffer[64];
+  if (config.aimbot.key.button_type == INPUT_KEY) {
+    sprintf(button_edit_buffer, SDL_GetScancodeName((SDL_Scancode)config.aimbot.key.button));
+  } else if (config.aimbot.key.button_type == INPUT_MOUSE) {
+    switch (config.aimbot.key.button) {
+    case SDL_BUTTON_MIDDLE: 
+      sprintf(button_edit_buffer, "Middle Mouse"); break;
+    case SDL_BUTTON_RIGHT:
+      sprintf(button_edit_buffer, "Right Mouse"); break;
+    case SDL_BUTTON_X1:
+      sprintf(button_edit_buffer, "Side Mouse 1"); break;
+    case SDL_BUTTON_X2:
+      sprintf(button_edit_buffer, "Side Mouse 2"); break;}
+  }    
+  nk_button_set_behavior(ctx, NK_BUTTON_REPEATER);
+  if (nk_button_label(ctx, button_edit_buffer)) {
+    get_button_down(&config.aimbot.key);
+  }
+  nk_checkbox_label(ctx, "Use Button", &config.aimbot.use_key);
+    
+  
   NK_CHECKBOX_ROW(ctx, "Silent", &config.aimbot.silent);    
 
   char fov_text[32];

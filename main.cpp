@@ -16,6 +16,8 @@
 #include "create_move.cpp"
 #include "paint_traverse.cpp"
 #include "override_view.cpp"
+#include "draw_local_player.cpp"
+
 #include "vec.hpp"
 
 
@@ -25,7 +27,7 @@ __attribute__((constructor))
 void entry() {
   usleep(50000);
   
-  client = (Client*)get_interface("tf/bin/linux64/client.so", "VClient017");
+  client = (Client*)get_interface("./tf/bin/linux64/client.so", "VClient017");
   engine = (Engine*)get_interface("./bin/linux64/engine.so", "VEngineClient014");
   
   vgui = get_interface("./bin/linux64/vgui2.so", "VGUI_Panel009");
@@ -60,7 +62,14 @@ void entry() {
   } else {
     print("Holy moly we hooking! x3\n");
   }
-  
+
+  draw_local_player_original = (bool (*)(void*, Player*))client_mode_vtable[14];
+
+  if (!write_to_table(client_mode_vtable, 14, (void*)draw_local_player_hook)) {
+    print("ShouldDrawLocalPlayer hook failed\n");
+  } else {
+    print("Holy moly we hooking! x4\n");
+  }  
 
   vgui_vtable = *(void***)vgui;
 
@@ -110,9 +119,14 @@ void exit() {
   }
 
   if (!write_to_table(client_mode_vtable, 17, (void*)override_view_original)) {
-    print("CreateMove failed to restore hook\n");
+    print("OverrideView failed to restore hook\n");
   }
-    
+
+  
+  if (!write_to_table(client_mode_vtable, 14, (void*)draw_local_player_original)) {
+    print("ShouldDrawLocalPlayer failed to restore hook\n");
+  }
+  
   if (!write_to_table(vgui_vtable, 42, (void*)paint_traverse_original)) {
     print("PaintTraverse failed to restore hook\n");
   }   
