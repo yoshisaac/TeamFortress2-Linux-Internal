@@ -11,21 +11,27 @@
 #include "render_view.hpp"
 
 #include "hooks.cpp"
-
+#include "memory.hpp"
+#include "funchook/funchook.h"
+ 
 #include "sdl.cpp"
 #include "create_move.cpp"
 #include "paint_traverse.cpp"
 #include "override_view.cpp"
-#include "draw_local_player.cpp"
+#include "draw_view_model.cpp"
+#include "in_cond.cpp"
 
 #include "vec.hpp"
 
-
 void** client_mode_vtable;
 void** vgui_vtable;
+funchook_t* funchook;
+
 __attribute__((constructor))
 void entry() {
   usleep(50000);
+
+  funchook = funchook_create();
   
   client = (Client*)get_interface("./tf/bin/linux64/client.so", "VClient017");
   engine = (Engine*)get_interface("./bin/linux64/engine.so", "VEngineClient014");
@@ -40,46 +46,64 @@ void entry() {
   render_view = (RenderView*)get_interface("./bin/linux64/engine.so", "VEngineRenderView014");
   
   void** client_vtable = *(void ***)client;
-  void *hud_process_input_addr = client_vtable[10];
+  void* hud_process_input_addr = client_vtable[10];
   __uint32_t client_mode_eaddr = *(__uint32_t *)((__uint64_t)(hud_process_input_addr) + 0x3);
-  void *client_mode_next_instruction = (void *)((__uint64_t)(hud_process_input_addr) + 0x7);
-  void *client_mode_interface = *(void **)((__uint64_t)(client_mode_next_instruction) + client_mode_eaddr);
+  void* client_mode_next_instruction = (void *)((__uint64_t)(hud_process_input_addr) + 0x7);
+  void* client_mode_interface = *(void **)((__uint64_t)(client_mode_next_instruction) + client_mode_eaddr);
 
   client_mode_vtable = *(void***)client_mode_interface;
   
   create_move_original = (bool (*)(void*, float, user_cmd*))client_mode_vtable[22];
-
   if (!write_to_table(client_mode_vtable, 22, (void*)create_move_hook)) {
     print("CreateMove hook failed\n");
   } else {
-    print("Holy moly we hooking!\n");
+    print("CreateMove hooked\n");
   }
 
-  override_view_original = (void (*)(void*, view_setup*))client_mode_vtable[17];
-  
+  override_view_original = (void (*)(void*, view_setup*))client_mode_vtable[17];  
   if (!write_to_table(client_mode_vtable, 17, (void*)override_view_hook)) {
     print("OverrideView hook failed\n");
   } else {
-    print("Holy moly we hooking! x3\n");
+    print("OverrideView hooked\n");
   }
 
-  draw_local_player_original = (bool (*)(void*, Player*))client_mode_vtable[14];
-
-  if (!write_to_table(client_mode_vtable, 14, (void*)draw_local_player_hook)) {
-    print("ShouldDrawLocalPlayer hook failed\n");
+  draw_view_model_original = (bool (*)(void*))client_mode_vtable[25];  
+  
+  if (!write_to_table(client_mode_vtable, 25, (void*)draw_view_model_hook)) {
+    print("ShouldDrawViewModel hook failed\n");
   } else {
-    print("Holy moly we hooking! x4\n");
-  }  
-
+    print("ShouldDrawViewModel hooked\n");
+  }
+  
   vgui_vtable = *(void***)vgui;
 
-  paint_traverse_original = (void (*)(void*, void*, __int8_t, __int8_t))vgui_vtable[42];
-  
-
+  paint_traverse_original = (void (*)(void*, void*, __int8_t, __int8_t))vgui_vtable[42];  
   if (!write_to_table(vgui_vtable, 42, (void*)paint_traverse_hook)) {
     print("PaintTraverse hook failed\n");
   } else {
-    print("Holy moly we hooking! x2\n");
+    print("PaintTraverse hooked\n");
+  }
+
+  /* //I'm going crazy trying to get the Local Player to render while scoped.
+     // pls help. All i want is to hook "C_TFPlayer::ShouldDraw()"
+     // - Dr_Coomer
+
+     //Hooking in_cond has been a partial fix to the issue. Hooking
+     // ShouldDraw would be better, but this works good for now. :3
+   */
+
+  void* client_base_address = get_module_base_address("client.so");
+
+  in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address
+
+  int rv;
+  
+  rv = funchook_prepare(funchook, (void**)&in_cond_original, (void*)in_cond_hook);
+  if (rv != 0) {
+  }
+
+  rv = funchook_install(funchook, 0);
+  if (rv != 0) {
   }
   
   void* lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
@@ -103,9 +127,9 @@ void entry() {
 
   dlclose(lib_sdl_handle);
   
-  void *hud_update = client_vtable[11];
+  void* hud_update = client_vtable[11];
   __uint32_t global_vars_eaddr = *(__uint32_t *)((__uint64_t)(hud_update) + 0x16);
-  void *global_vars_next_instruction = (void *)((__uint64_t)(hud_update) + 0x1A);
+  void* global_vars_next_instruction = (void *)((__uint64_t)(hud_update) + 0x1A);
   //set_global_vars_ptr(*(void **)((__uint64_t)(global_vars_next_instruction) + global_vars_eaddr));
   
   
@@ -122,15 +146,18 @@ void exit() {
     print("OverrideView failed to restore hook\n");
   }
 
-  
-  if (!write_to_table(client_mode_vtable, 14, (void*)draw_local_player_original)) {
-    print("ShouldDrawLocalPlayer failed to restore hook\n");
+  if (!write_to_table(client_mode_vtable, 25, (void*)draw_view_model_original)) {
+    print("ShouldDrawViewModel failed to restore hook\n");
   }
   
   if (!write_to_table(vgui_vtable, 42, (void*)paint_traverse_original)) {
     print("PaintTraverse failed to restore hook\n");
   }   
 
+  
+  funchook_uninstall(funchook, 0);
+
+  
   void *lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
 
   if (!restore_sdl_hook(lib_sdl_handle, "SDL_GL_SwapWindow", (void*)swap_window_original)) {

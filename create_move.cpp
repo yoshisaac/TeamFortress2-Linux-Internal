@@ -40,9 +40,11 @@ bool (*create_move_original)(void*, float, user_cmd*);
 
 bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 
+  /*
   if (!user_cmd->tick_count) {
     return true;
   }
+  */
   
   bool rc = create_move_original(me, sample_time, user_cmd);
 
@@ -59,6 +61,21 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
   
   if (user_cmd->tick_count > 1) {
 
+    static bool was_pressed = false;
+    static bool do_thirdperson = false;
+    if (config.visuals.thirdperson == true) {
+      if (!was_pressed && is_button_down(config.visuals.thirdperson_key)) {
+	do_thirdperson = !do_thirdperson;
+	localplayer->set_thirdperson(do_thirdperson);
+	was_pressed = true;
+      } else if (was_pressed && !is_button_down(config.visuals.thirdperson_key)) {
+	was_pressed = false;
+      }
+    } else {
+      localplayer->set_thirdperson(false);
+    }
+
+    
     aimbot(user_cmd);
     
     static bool was_jumping = false;
@@ -75,8 +92,6 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
     } else if(!was_jumping) {
       was_jumping = true;
     }
-  } else {
-    return rc;
   }
   
   if (config.aimbot.silent == true)

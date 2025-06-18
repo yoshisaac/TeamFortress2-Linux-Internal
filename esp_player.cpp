@@ -3,13 +3,11 @@
 
 #include "player.hpp"
 
-#include "print.hpp"
 #include "math.hpp"
 
 #include "aimbot.hpp"
 
 #include "surface.hpp"
-#include "debug_overlay.hpp"
 #include "render_view.hpp"
 #include "entity_list.hpp"
 #include "engine.hpp"
@@ -119,6 +117,10 @@ void flags_esp_player(Vec3 screen, Vec3 screen_offset, Player* player) {
   }
 }
 
+void skeleton_esp_player(Player* player) {
+  //todo
+}
+
 void esp_player(unsigned int i, Player* player) {
   Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
     
@@ -129,6 +131,20 @@ void esp_player(unsigned int i, Player* player) {
     return;
   }
 
+  
+  //bone draw ID debug
+  surface->set_rgba(255, 255, 255, 255);
+  for (unsigned int h = 0; h < 128; ++h) {
+    break;
+    Vec3 bone = player->get_bone_pos(h);
+    Vec3 bone_screen;
+    render_view->world_to_screen(&bone, &bone_screen);
+    surface->draw_set_text_pos(bone_screen.x, bone_screen.y);
+    std::wstring a = std::to_wstring(h);
+    surface->draw_print_text(a.c_str(), wcslen(a.c_str()));
+  }
+
+  
   Vec3 location = player->get_origin();
   Vec3 screen;
   if (!render_view->world_to_screen(&location, &screen)) return;
@@ -140,21 +156,9 @@ void esp_player(unsigned int i, Player* player) {
   Vec3 screen_offset;
   render_view->world_to_screen(&z_offset, &screen_offset);
 
-  //bone draw ID debug
-  /* 
-  surface->set_rgba(255, 255, 255, 255);
-  for (unsigned int h = 0; h < 128; ++h) {
-    Vec3 bone = player->get_bone_pos(h);
-    Vec3 bone_screen;
-    overlay->world_to_screen(&bone, &bone_screen);
-    surface->draw_set_text_pos(bone_screen.x, bone_screen.y);
-    std::wstring a = std::to_wstring(h);
-    surface->draw_print_text(a.c_str(), wcslen(a.c_str()));
-  }
-  */
-
   box_esp_player(screen, screen_offset);
   health_bar_esp_player(screen, screen_offset, player);
   flags_esp_player(screen, screen_offset, player);
   name_esp_player(screen, screen_offset, player, i);
+  skeleton_esp_player(player);
 }

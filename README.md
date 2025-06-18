@@ -60,5 +60,6 @@ Library loaded successfully at 0x12345678900. Use Ctrl+C to unload.
 ![pickups](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/6jhjaiseb021kvef5b.png)
 
 # TODO
+* Build funchook instead of packaging the binary
 * Make better menu with SDL+IMGUI
 * Add packages

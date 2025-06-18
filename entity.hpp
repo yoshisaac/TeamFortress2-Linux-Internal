@@ -79,10 +79,6 @@ public:
   void* get_renderable(void) {
     return (void*)(this + 0x8);
   }
-
-
-  // model_t* = entity + 0x88
-  // model_name* = model_t + 0x8 
   
   const char* get_model_name(void) {
     return (const char*)*(unsigned long*)(*(unsigned long*)(this + 0x88) + 0x8);
@@ -164,7 +160,7 @@ public:
       return "NOT IMPLEMENTED";
     }
   }
-
+  
 };
 
 #endif

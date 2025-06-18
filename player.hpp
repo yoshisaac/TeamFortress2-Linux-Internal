@@ -74,7 +74,7 @@ public:
   }
   
   Vec3 get_shoot_pos(void) {
-    void **vtable = *(void ***)this;
+    void** vtable = *(void ***)this;
 
     Vec3 (*get_shoot_pos_fn)(void*) = (Vec3 (*)(void*))vtable[303];
 
@@ -85,6 +85,14 @@ public:
     return *(int*)(this + 0x1BA0);
   }
 
+  bool should_draw(void) {
+    void** vtable = *(void ***)this;
+
+    bool (*should_draw_fn)(void*) = (bool (*)(void*))vtable[302];
+
+    return should_draw_fn(this);
+  }
+  
   Vec3 get_bone_pos(int bone_num) {
     // 128 bones, 3x4 matrix
     float bone_to_world_out[128][3][4];
@@ -98,9 +106,7 @@ public:
 
   
   int get_head_bone(void) {
-    int ent_class = this->get_class();
-
-    switch (ent_class) {
+    switch (get_class()) {
     case CLASS_SCOUT:
     case CLASS_PYRO:
     case CLASS_SPY:
@@ -119,13 +125,21 @@ public:
   }
     
   int setup_bones(void *bone_to_world_out, int max_bones, int bone_mask, float current_time) {
-    void **vtable = *(void ***)this;
+    void** vtable = *(void ***)this;
 
     int (*setup_bones_fn)(void*, void*, int, int, float) = (int (*)(void*, void*, int, int, float))vtable[96];
 
     return setup_bones_fn(this, bone_to_world_out, max_bones, bone_mask, current_time);
   }
+  
+  void set_thirdperson(bool value) {
+    *(bool*)(this + 0x240C) = value;
+  }
 
+  bool is_thirdperson(void) {
+    return *(bool*)(this + 0x240C);
+  }
+  
   int get_cond_flags(void) {
     return *(int*)(this + 0x15D8);
   }

@@ -35,8 +35,8 @@ struct Aim {
   
   nk_bool silent = true;
   
+  struct button key = {.button = SDL_BUTTON_X1, .button_type = INPUT_MOUSE};
   nk_bool use_key = true;
-  struct button key;
   
   float fov = 45;
   nk_bool draw_fov = false;
@@ -64,6 +64,9 @@ struct Visuals {
   nk_bool hide_scope = false;
   nk_bool remove_zoom = false;
 
+  struct button thirdperson_key = {.button = SDL_SCANCODE_LALT, .button_type = INPUT_KEY};
+  nk_bool thirdperson = false;
+  
   nk_bool override_fov = false;
   float custom_fov = 90;
 };
