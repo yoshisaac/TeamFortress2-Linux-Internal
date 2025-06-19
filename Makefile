@@ -2,9 +2,9 @@ CC=g++
 
 MAKEFLAGS := --jobs=$(shell nproc)
 
-CFLAGS= -shared -fPIC #-g
+CFLAGS= -shared -fPIC -g
 
-LDFLAGS= -l:libGLEW.so.2.1 -lSDL2 funchook/libfunchook.a funchook/libdistorm.a #-g 
+LDFLAGS= -l:libGLEW.so.2.1 -lSDL2 funchook/libfunchook.a funchook/libdistorm.a -g 
 
 #OBJ_FILES=$(shell find . -name '*.cpp' | sed -e "s/.\///" | sed -e "s/$$/.o/") # Build all .cpp files
 OBJ_FILES=main.cpp.o # Unity build

@@ -7,6 +7,7 @@
 #include "entity_list.hpp"
 #include "debug_overlay.hpp"
 #include "surface.hpp"
+#include "engine_trace.hpp"
 
 #include "render_view.hpp"
 
@@ -44,6 +45,8 @@ void entry() {
   entity_list = (EntityList*)get_interface("./tf/bin/linux64/client.so", "VClientEntityList003");
 
   render_view = (RenderView*)get_interface("./bin/linux64/engine.so", "VEngineRenderView014");
+
+  engine_trace = (EngineTrace*)get_interface("./bin/linux64/engine.so", "EngineTraceClient003");
   
   void** client_vtable = *(void ***)client;
   void* hud_process_input_addr = client_vtable[10];

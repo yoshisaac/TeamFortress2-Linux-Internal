@@ -4,9 +4,29 @@
 
 #include "entity_list.hpp"
 #include "engine.hpp"
+#include "engine_trace.hpp"
 
 #include "config.hpp"
 #include "player.hpp"
+
+bool is_player_visible(Player* localplayer, Player* entity, int bone) {
+  Vec3 target_pos = entity->get_bone_pos(bone);
+  Vec3 start_pos  = localplayer->get_shoot_pos();
+
+  struct ray_t ray = engine_trace->init_ray(&start_pos, &target_pos);
+  struct trace_filter filter;
+  engine_trace->init_trace_filter(&filter, localplayer);
+  
+  struct trace_t trace;
+  engine_trace->trace_ray(&ray, 0x4200400b, &filter, &trace);
+  
+  if (trace.entity == entity || trace.fraction > 0.97f) {
+    return true;
+  }
+
+  return false;
+}
+
 
 void movement_fix(user_cmd* user_cmd, Vec3 original_view_angle, float original_forward_move, float original_side_move) {
   float yaw_delta = user_cmd->view_angles.y - original_view_angle.y;
@@ -95,13 +115,15 @@ void aimbot(user_cmd* user_cmd) {
     float clamped_y = y > 180.0f ? 180.0f : y < -180.0f ? -180.0f : y;
 
     float fov = hypotf(clamped_x, clamped_y);
+
+    bool visible = is_player_visible(localplayer, player, bone);
     
-    if (fov <= config.aimbot.fov && fov < smallest_fov_angle) {
+    if (visible == true && fov <= config.aimbot.fov && fov < smallest_fov_angle) {
       target_player = player;
       smallest_fov_angle = fov;
     }
     
-    if (target_player == player && fov > config.aimbot.fov)
+    if (target_player == player && (fov > config.aimbot.fov || visible == false))
       target_player = nullptr;
 
     
