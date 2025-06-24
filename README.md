@@ -20,7 +20,9 @@ Install the necessary packages.
   
 Debian Advanced Package Tool (APT):  
 ```bash
-$ sudo apt install #TODO
+$ ./packages/debian.sh
+[sudo] password for user:
+...
 ```
   
 Arch Package Manager (pacman):  
