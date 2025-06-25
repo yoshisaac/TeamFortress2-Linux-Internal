@@ -16,7 +16,7 @@ public:
 
     get_matrices_for_view_fn(this, view, world_to_screen, view_to_projection, world_to_projection, world_to_pixels);
   }
-
+  
   bool world_to_screen(Vec3* point, Vec3* screen) {
     view_setup local_view = {};
     client->get_player_view(local_view);
@@ -53,6 +53,39 @@ public:
   
     return true;
   }
+
+  void set_color_modulation(const RGBA_float* blend) {
+    void** vtable = *(void ***)this;
+
+    void (*set_color_modulation_fn)(void*, const RGBA_float*) = (void (*)(void*, const RGBA_float*))vtable[6];
+
+    set_color_modulation_fn(this, blend);
+  }
+
+  void get_color_modulation(RGBA_float* blend) {
+    void** vtable = *(void ***)this;
+
+    void (*get_color_modulation_fn)(void*, RGBA_float*) = (void (*)(void*, RGBA_float*))vtable[7];
+
+    get_color_modulation_fn(this, blend);
+  }  
+  
+  void set_blend(float blend) {
+    void** vtable = *(void ***)this;
+
+    void (*set_blend_fn)(void*, float) = (void (*)(void*, float))vtable[4];
+
+    set_blend_fn(this, blend);
+  }
+  
+  float get_blend() {
+    void** vtable = *(void ***)this;
+
+    float (*get_blend_fn)(void*) = (float (*)(void*))vtable[5];
+
+    return get_blend_fn(this);
+  }
+  
 };
 
 inline static RenderView* render_view;
