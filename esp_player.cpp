@@ -100,8 +100,13 @@ void name_esp_player(Vec3 screen, Vec3 screen_offset, Player* player, unsigned i
     size_t len = mbstowcs(name, pinfo.name, 32);
     if (len == (size_t)-1) return;
 
+    unsigned int name_length = 0;
+    for (unsigned int i = 0; i < wcslen(name); ++i) {
+      name_length += surface->get_character_width(esp_player_font, name[i]);
+    }
+    
     surface->draw_set_text_color(255, 255, 255, 255);
-    surface->draw_set_text_pos(screen.x - (wcslen(name)/2 * surface->get_character_width(esp_player_font, 'A')) , screen_offset.y - 13);  
+    surface->draw_set_text_pos(screen.x - (name_length/2.f) , screen_offset.y - 13);  
 
     surface->draw_print_text(name, wcslen(name));
   }
