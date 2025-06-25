@@ -10,16 +10,12 @@ enum trace_type_t {
   TRACE_EVERYTHING_FILTER_PROPS,
 };
 
-struct __attribute__((aligned(16))) vector_aligned {
-  float x, y, z;
-};
-
 struct ray_t
 {
-  struct vector_aligned start;	    // starting point, centered within the extents
-  struct vector_aligned delta;	    // direction + length of the ray
-  struct vector_aligned start_offset;	// Add this to m_Start to get the actual ray start
-  struct vector_aligned extents;	    // Describes an axis aligned box extruded along a ray
+  struct Vec3_aligned start;	    // starting point, centered within the extents
+  struct Vec3_aligned delta;	    // direction + length of the ray
+  struct Vec3_aligned start_offset;	// Add this to m_Start to get the actual ray start
+  struct Vec3_aligned extents;	    // Describes an axis aligned box extruded along a ray
   bool is_ray;	                    // are the extents zero?
   bool is_swept;	                    // is delta != 0?
 };
@@ -67,9 +63,8 @@ bool should_hit_entity(struct trace_filter* interface, void* entity, int content
   return entity != interface->skip;
 }
 
-enum trace_type_t get_type(struct trace_filter* interface)
-{
-  return TRACE_EVERYTHING;
+enum trace_type_t get_type(struct trace_filter* interface) {
+  return TRACE_EVERYTHING_FILTER_PROPS;
 }
 
 static void* trace_filter_vtable[2] = { (void*)should_hit_entity, (void*)get_type };
@@ -77,8 +72,8 @@ static void* trace_filter_vtable[2] = { (void*)should_hit_entity, (void*)get_typ
 
 class EngineTrace {
 public:
-  struct vector_aligned vector_aligned_subtract(Vec3* a, Vec3* b) {
-    struct vector_aligned result = {
+  struct Vec3_aligned Vec3_aligned_subtract(Vec3* a, Vec3* b) {
+    struct Vec3_aligned result = {
       .x = a->x - b->x,
       .y = a->y - b->y,
       .z = a->z - b->z
@@ -88,7 +83,7 @@ public:
   }
 
   struct ray_t init_ray(Vec3* start, Vec3* end) {
-    struct vector_aligned delta = vector_aligned_subtract(end, start);
+    struct Vec3_aligned delta = Vec3_aligned_subtract(end, start);
     bool is_swept = (delta.x != 0.0f || delta.y != 0.0f || delta.z != 0.0f);
 
     struct ray_t ray = {
@@ -103,19 +98,17 @@ public:
     return ray;
   }
 
-  void init_trace_filter(struct trace_filter* filter, void* skip)
-  {
+  void init_trace_filter(struct trace_filter* filter, void* skip) {
     filter->vtable = trace_filter_vtable;
     filter->skip = skip;
   }
 
-  void trace_ray(struct ray_t* ray, unsigned int f_mask, struct trace_filter* p_trace_filter, struct trace_t* p_trace)
-  {
+  void trace_ray(struct ray_t* ray, unsigned int f_mask, struct trace_filter* p_trace_filter, struct trace_t* p_trace) {
     void** vtable = *(void ***)this;
     void (*trace_ray_fn)(void*, struct ray_t*, unsigned int, struct trace_filter*, struct trace_t*) =
       (void (*)(void*, struct ray_t*, unsigned int, struct trace_filter*, struct trace_t*))vtable[4];
 
-    return trace_ray_fn(this, ray, f_mask, p_trace_filter, p_trace);
+    trace_ray_fn(this, ray, f_mask, p_trace_filter, p_trace);
   }
 };
 

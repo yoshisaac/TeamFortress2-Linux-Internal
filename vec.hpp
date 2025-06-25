@@ -9,6 +9,14 @@ struct Vec3 {
   float x = 0.0, y = 0.0, z = 0.0;
 };
 
+struct __attribute__((aligned(16))) Vec3_aligned {
+  float x = 0.0, y = 0.0, z = 0.0;
+};
+
+struct RGBA_float {
+  float r = 1.0, g = 1.0, b = 1.0, a = 1.0;
+};
+
 typedef float VMatrix[4][4];
 
 

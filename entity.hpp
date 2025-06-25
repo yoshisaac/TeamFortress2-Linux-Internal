@@ -2,6 +2,7 @@
 #define ENTITY_HPP
 
 #include <string>
+#include <string.h>
 
 #include "vec.hpp"
 
@@ -85,24 +86,13 @@ public:
   }
 
   enum pickup_type get_pickup_type(void) {
-    std::string model_name = get_model_name();
+    const char* model_name = get_model_name();
     
-    if (model_name == "models/items/ammopack_large.mdl"       || 
-	model_name == "models/items/ammopack_medium.mdl"      ||
-	model_name == "models/items/ammopack_small.mdl"       ||
-	model_name == "models/items/ammopack_large_bday.mdl"  ||
-	model_name == "models/items/ammopack_medium_bday.mdl" ||
-	model_name == "models/items/ammopack_small_bday.mdl"   ) {
+    if (strstr(model_name, "models/items/ammopack")) {
       return pickup_type::AMMOPACK;
     }
 
-    if (model_name == "models/items/medkit_large.mdl"       || 
-	model_name == "models/items/medkit_medium.mdl"      ||
-	model_name == "models/items/medkit_small.mdl"       ||
-	model_name == "models/items/medkit_large_bday.mdl"  ||
-	model_name == "models/items/medkit_medium_bday.mdl" ||
-	model_name == "models/items/medkit_small_bday.mdl"  ||
-	model_name == "models/props_medieval/medieval_meat.mdl") {
+    if (strstr(model_name, "models/items/medkit") || strstr(model_name, "models/props_medieval/medieval_meat.mdl")) {
       return pickup_type::MEDKIT;
     }
 

@@ -8,8 +8,9 @@
 #include "debug_overlay.hpp"
 #include "surface.hpp"
 #include "engine_trace.hpp"
-
 #include "render_view.hpp"
+#include "material_system.hpp"
+#include "model_render.hpp"
 
 #include "hooks.cpp"
 #include "memory.hpp"
@@ -21,11 +22,13 @@
 #include "override_view.cpp"
 #include "draw_view_model.cpp"
 #include "in_cond.cpp"
+#include "draw_model_execute.cpp"
 
 #include "vec.hpp"
 
 void** client_mode_vtable;
 void** vgui_vtable;
+void** model_render_vtable;
 funchook_t* funchook;
 
 __attribute__((constructor))
@@ -47,6 +50,10 @@ void entry() {
   render_view = (RenderView*)get_interface("./bin/linux64/engine.so", "VEngineRenderView014");
 
   engine_trace = (EngineTrace*)get_interface("./bin/linux64/engine.so", "EngineTraceClient003");
+
+  model_render = (ModelRender*)get_interface("./bin/linux64/engine.so", "VEngineModel016");
+
+  material_system = (MaterialSystem*)get_interface("./bin/linux64/materialsystem.so", "VMaterialSystem082");
   
   void** client_vtable = *(void ***)client;
   void* hud_process_input_addr = client_vtable[10];
@@ -71,20 +78,28 @@ void entry() {
   }
 
   draw_view_model_original = (bool (*)(void*))client_mode_vtable[25];  
-  
   if (!write_to_table(client_mode_vtable, 25, (void*)draw_view_model_hook)) {
     print("ShouldDrawViewModel hook failed\n");
   } else {
     print("ShouldDrawViewModel hooked\n");
   }
   
-  vgui_vtable = *(void***)vgui;
+  vgui_vtable = *(void ***)vgui;
 
   paint_traverse_original = (void (*)(void*, void*, __int8_t, __int8_t))vgui_vtable[42];  
   if (!write_to_table(vgui_vtable, 42, (void*)paint_traverse_hook)) {
     print("PaintTraverse hook failed\n");
   } else {
     print("PaintTraverse hooked\n");
+  }
+
+  model_render_vtable = *(void ***)model_render;  
+  
+  draw_model_execute_original = (void (*)(void*, void*, ModelRenderInfo_t*, VMatrix*))model_render_vtable[19];  
+  if (!write_to_table(model_render_vtable, 19, (void*)draw_model_execute_hook)) {
+    print("DrawModelExecute hook failed\n");
+  } else {
+    print("DrawModelExecute hooked\n");
   }
 
   /* //I'm going crazy trying to get the Local Player to render while scoped.
@@ -107,6 +122,8 @@ void entry() {
 
   rv = funchook_install(funchook, 0);
   if (rv != 0) {
+  } else {
+    print("InCond hooked");
   }
   
   void* lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
@@ -156,6 +173,10 @@ void exit() {
   if (!write_to_table(vgui_vtable, 42, (void*)paint_traverse_original)) {
     print("PaintTraverse failed to restore hook\n");
   }   
+
+  if (!write_to_table(model_render_vtable, 19, (void*)draw_model_execute_original)) {
+    print("DrawModelExecute failed to restore hook\n");
+  }
 
   
   funchook_uninstall(funchook, 0);
