@@ -14,6 +14,7 @@ void override_view_hook(void* me, view_setup* setup) {
 
   Player* localplayer = entity_list->get_localplayer();
 
+  if (!localplayer) return;
     
   if (config.visuals.remove_zoom == true) {
     setup->fov = config.visuals.override_fov ? config.visuals.custom_fov : localplayer->get_default_fov();
