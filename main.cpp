@@ -11,6 +11,7 @@
 #include "render_view.hpp"
 #include "material_system.hpp"
 #include "model_render.hpp"
+#include "convar_system.hpp"
 
 #include "hooks.cpp"
 #include "memory.hpp"
@@ -23,6 +24,7 @@
 #include "draw_view_model.cpp"
 #include "in_cond.cpp"
 #include "draw_model_execute.cpp"
+#include "load_white_list.cpp"
 
 #include "vec.hpp"
 
@@ -54,6 +56,8 @@ void entry() {
   model_render = (ModelRender*)get_interface("./bin/linux64/engine.so", "VEngineModel016");
 
   material_system = (MaterialSystem*)get_interface("./bin/linux64/materialsystem.so", "VMaterialSystem082");
+
+  convar_system = (ConvarSystem*)get_interface("./bin/linux64/libvstdlib.so", "VEngineCvar004");
   
   void** client_vtable = *(void ***)client;
   void* hud_process_input_addr = client_vtable[10];
@@ -107,23 +111,31 @@ void entry() {
      // - Dr_Coomer
 
      //Hooking in_cond has been a partial fix to the issue. Hooking
-     // ShouldDraw would be better, but this works good for now. :3
+     // ShouldDraw would maybe be better, but this works good for now. :3
    */
 
   void* client_base_address = get_module_base_address("client.so");
+  void* engine_base_address = get_module_base_address("engine.so");
+  
+  in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
 
-  in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address
-
+  load_white_list_original = (void* (*)(void*, const char*))((unsigned long)engine_base_address + 0x3B3880);
+  
   int rv;
   
   rv = funchook_prepare(funchook, (void**)&in_cond_original, (void*)in_cond_hook);
   if (rv != 0) {
   }
 
+  rv = funchook_prepare(funchook, (void**)&load_white_list_original, (void*)load_white_list_hook);
+  if (rv != 0) {
+  }
+  
   rv = funchook_install(funchook, 0);
   if (rv != 0) {
   } else {
-    print("InCond hooked");
+    print("InCond hooked\n");
+    print("LoadWhiteList hooked\n");
   }
   
   void* lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);

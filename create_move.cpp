@@ -1,5 +1,6 @@
 #include "engine.hpp"
 #include "entity_list.hpp"
+#include "convar_system.hpp"
 
 #include "config.hpp"
 
@@ -61,6 +62,7 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
   
   if (user_cmd->tick_count > 1) {
 
+    //thirdperson
     static bool was_pressed = false;
     static bool do_thirdperson = false;
     if (config.visuals.thirdperson == true) {
@@ -77,7 +79,8 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 
     
     aimbot(user_cmd);
-    
+
+    //bhop
     static bool was_jumping = false;
     bool on_ground = (localplayer->get_ent_flags() & FL_ONGROUND);
 
@@ -92,7 +95,7 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
     } else if(!was_jumping) {
       was_jumping = true;
     }
-  }
+  } 
   
   if (config.aimbot.silent == true)
     return false;

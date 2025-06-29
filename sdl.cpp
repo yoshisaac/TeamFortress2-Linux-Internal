@@ -11,8 +11,6 @@
 void (*swap_window_original)(void *) = NULL;
 int (*poll_event_original)(SDL_Event *) = NULL;
 
-inline static bool menu_focused = false;
-
 int poll_event_hook(SDL_Event *event) {
   int ret = poll_event_original(event);
   nk_sdl_handle_event(event);
@@ -41,24 +39,6 @@ int poll_event_hook(SDL_Event *event) {
   */
   
   return ret;
-}
-
-void set_style(nk_context* ctx) {
-  struct nk_color table[NK_COLOR_COUNT];
-  memcpy(table, nk_default_color_style, sizeof(nk_default_color_style));
-
-  table[NK_COLOR_TOGGLE_CURSOR] = nk_rgba(207, 115, 54, 255);
-  table[NK_COLOR_TOGGLE_HOVER] = nk_rgba(207, 115, 54, 255 / 2);
-
-  nk_style_from_table(ctx, table);
-}
-
-
-void get_input(nk_context* ctx) {
-  if (nk_input_is_key_pressed(&ctx->input, NK_KEY_DEL)) {
-    menu_focused = !menu_focused;
-    surface->set_cursor_visible(menu_focused);
-  }
 }
 
 void watermark(nk_context* ctx) {

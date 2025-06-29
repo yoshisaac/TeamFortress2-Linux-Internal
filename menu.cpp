@@ -1,13 +1,36 @@
 #include "config.hpp"
 
 #include "print.hpp"
+
+#include "surface.hpp"
+
 #include <SDL2/SDL_mouse.h>
+
+inline static bool menu_focused = false;
+
+void set_style(nk_context* ctx) {
+  struct nk_color table[NK_COLOR_COUNT];
+  memcpy(table, nk_default_color_style, sizeof(nk_default_color_style));
+
+  table[NK_COLOR_TOGGLE_CURSOR] = nk_rgba(207, 115, 54, 255);
+  table[NK_COLOR_TOGGLE_HOVER] = nk_rgba(207, 115, 54, 255 / 2);
+
+  nk_style_from_table(ctx, table);
+}
+
+
+void get_input(nk_context* ctx) {
+  if (nk_input_is_key_pressed(&ctx->input, NK_KEY_DEL)) {
+    menu_focused = !menu_focused;
+    surface->set_cursor_visible(menu_focused);
+  }
+}
+
 
 void draw_aim_tab(struct nk_context* ctx) {
   NK_CHECKBOX_ROW(ctx, "Master", &config.aimbot.master);
 
   NK_CHECKBOX_ROW(ctx, "Auto Shoot", &config.aimbot.auto_shoot);
-
   
   nk_layout_row_static(ctx, 20, 100, 5);
   nk_label(ctx, "Aimbot Button: ", NK_TEXT_LEFT);
@@ -100,6 +123,7 @@ void draw_visuals_tab(struct nk_context* ctx) {
 void draw_misc_tab(struct nk_context* ctx) {
   NK_HEADER_ROW(ctx, "General", NK_TEXT_CENTERED); {
     NK_CHECKBOX_ROW(ctx, "Bhop", &config.misc.bhop);
+    NK_CHECKBOX_ROW(ctx, "Bypass sv_pure", &config.misc.bypasspure);
   }  
 }
 
