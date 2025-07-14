@@ -60,7 +60,7 @@ bool write_to_table(void** vtable, int index, void* func) {
 }
 
 bool sdl_hook(void* lib_handle, const char* func_name, void* hook, void** original) {
-  void *func = dlsym(lib_handle, func_name);
+  void* func = dlsym(lib_handle, func_name);
 
   if (!func) {
     print("Failed to get %s\n", func_name);
