@@ -2,6 +2,8 @@
 
 #include <unistd.h>
 
+#include "player.hpp"
+
 #include "engine.hpp"
 #include "client.hpp"
 #include "entity_list.hpp"
@@ -18,6 +20,8 @@
 #include "funchook/funchook.h"
  
 #include "sdl.cpp"
+#include "vulkan.cpp"
+
 #include "create_move.cpp"
 #include "paint_traverse.cpp"
 #include "override_view.cpp"
@@ -117,34 +121,27 @@ void entry() {
   void* client_base_address = get_module_base_address("client.so");
   void* engine_base_address = get_module_base_address("engine.so");
   
-  in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
+  Player::in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
 
   load_white_list_original = (void* (*)(void*, const char*))((unsigned long)engine_base_address + 0x3B3880);
   
   int rv;
   
-  rv = funchook_prepare(funchook, (void**)&in_cond_original, (void*)in_cond_hook);
+  rv = funchook_prepare(funchook, (void**)&Player::in_cond_original, (void*)in_cond_hook);
   if (rv != 0) {
   }
 
   rv = funchook_prepare(funchook, (void**)&load_white_list_original, (void*)load_white_list_hook);
   if (rv != 0) {
   }
-  
-  rv = funchook_install(funchook, 0);
-  if (rv != 0) {
-  } else {
-    print("InCond hooked\n");
-    print("LoadWhiteList hooked\n");
-  }
-  
+    
   void* lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
 
   if (!lib_sdl_handle) {
     print("Failed to load SDL2\n");
     return;
   }
-
+ 
   print("SDL2 loaded at %p\n", lib_sdl_handle);
 
   if (!sdl_hook(lib_sdl_handle, "SDL_PollEvent", (void*)poll_event_hook, (void **)&poll_event_original)) {
@@ -158,6 +155,39 @@ void entry() {
   }
 
   dlclose(lib_sdl_handle);
+
+  /*
+  void* lib_vulkan_handle = dlopen("/run/host/usr/lib/libvulkan.so.1.4.313", RTLD_LAZY | RTLD_NOLOAD);
+  
+  if (!lib_vulkan_handle) {
+    print("Failed to load vulkan\n");
+    return;
+  }
+
+  queue_present_original = (VkResult (*)(VkQueue, const VkPresentInfoKHR*))dlsym(lib_vulkan_handle, "vkQueuePresentKHR");
+
+  if (!queue_present_original) {
+    print("Failed to locate vkQueuePresentKHR\n");
+  } else {
+    print("vkQueuePresentKHR located at %p\n", queue_present_original);
+  }
+
+  rv = funchook_prepare(funchook, (void**)&queue_present_original, (void*)queue_present_hook);
+  if (rv != 0) {
+  }  
+  */
+  
+  rv = funchook_install(funchook, 0);
+  if (rv != 0) {
+    print("Non-VMT related hooks failed\n");
+  } else {
+    print("InCond hooked\n");
+    print("LoadWhiteList hooked\n");
+    print("vkQueuePresentKHR hooked\n");
+  }
+
+  //dlclose(lib_vulkan_handle);
+
   
   void* hud_update = client_vtable[11];
   __uint32_t global_vars_eaddr = *(__uint32_t *)((__uint64_t)(hud_update) + 0x16);

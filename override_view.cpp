@@ -19,7 +19,7 @@ void override_view_hook(void* me, view_setup* setup) {
   if (config.visuals.remove_zoom == true) {
     setup->fov = config.visuals.override_fov ? config.visuals.custom_fov : localplayer->get_default_fov();
   } else {
-    if (config.visuals.override_fov == true && (localplayer->get_cond_flags() & 20) == false)
+    if (config.visuals.override_fov == true && (localplayer->is_scoped()) == false)
       setup->fov = config.visuals.custom_fov;
   }
 

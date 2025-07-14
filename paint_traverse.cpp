@@ -69,7 +69,7 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
 
     //very poor practice.
     float local_fov = localplayer->get_fov();
-    if (config.visuals.override_fov == true && (localplayer->get_cond_flags() & 20) == false) {
+    if (config.visuals.override_fov == true && (localplayer->is_scoped()) == false) {
       local_fov = config.visuals.custom_fov;
     }
     if (config.visuals.remove_zoom == true) {

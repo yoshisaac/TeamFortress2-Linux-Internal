@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-bool (*in_cond_original)(void*, int);
+#include "player.hpp"
 
 bool in_cond_hook(void* me, int mask) {
 
@@ -8,7 +8,7 @@ bool in_cond_hook(void* me, int mask) {
     return false;
   }
 
-  bool re = in_cond_original(me, mask);
+  bool re = Player::in_cond_original(me, mask);
   
   return re;
 }

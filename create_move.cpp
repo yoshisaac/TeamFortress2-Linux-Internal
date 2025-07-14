@@ -61,7 +61,7 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
   }
   
   if (user_cmd->tick_count > 1) {
-
+    
     //thirdperson
     static bool was_pressed = false;
     static bool do_thirdperson = false;

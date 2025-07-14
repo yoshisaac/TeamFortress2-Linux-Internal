@@ -82,7 +82,7 @@ void aimbot(user_cmd* user_cmd) {
     }
 
     int bone;
-    if (localplayer->get_cond_flags() & 20 && //temp magic number until i find out how the mask works and can label each bit
+    if (localplayer->is_scoped() && //temp magic number until i find out how the mask works and can label each bit
 	localplayer->get_class() == CLASS_SNIPER &&
 	player->get_health() > 50)
       bone = player->get_head_bone();
