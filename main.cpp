@@ -20,7 +20,7 @@
 #include "funchook/funchook.h"
  
 #include "sdl.cpp"
-#include "vulkan.cpp"
+//#include "vulkan.cpp"
 
 #include "create_move.cpp"
 #include "paint_traverse.cpp"
@@ -121,13 +121,15 @@ void entry() {
   void* client_base_address = get_module_base_address("client.so");
   void* engine_base_address = get_module_base_address("engine.so");
   
-  Player::in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
+  in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
 
   load_white_list_original = (void* (*)(void*, const char*))((unsigned long)engine_base_address + 0x3B3880);
+
+  get_weapon_original = (void* (*)(void*))((unsigned long)client_base_address + 0x1CDBAC0);
   
   int rv;
   
-  rv = funchook_prepare(funchook, (void**)&Player::in_cond_original, (void*)in_cond_hook);
+  rv = funchook_prepare(funchook, (void**)&in_cond_original, (void*)in_cond_hook);
   if (rv != 0) {
   }
 

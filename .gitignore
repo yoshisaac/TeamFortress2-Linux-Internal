@@ -6,3 +6,6 @@ tf2.so
 
 # Objects
 *.o
+
+# Nohup
+nohup.out

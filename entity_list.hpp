@@ -9,7 +9,7 @@
 class EntityList {
 public:
   Entity* entity_from_index(unsigned int index) {
-    void **vtable = *(void ***)this;
+    void** vtable = *(void ***)this;
     
     Entity* (*get_client_entity_fn)(void*, unsigned int) = (Entity* (*)(void*, unsigned int))vtable[3];
     
@@ -25,7 +25,7 @@ public:
   }
   
   int get_max_entities(void) {
-    void **vtable = *(void ***)this;
+    void** vtable = *(void ***)this;
     
     int (*get_max_entities_fn)(void*) = (int (*)(void*))vtable[8];
 

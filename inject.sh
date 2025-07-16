@@ -10,7 +10,7 @@ unload() {
              -ex "call ((int (*) (void *)) dlclose)((void *) $LIB_HANDLE)" \
              -ex "call ((char * (*) (void)) dlerror)()" \
              -ex "detach" 2> /dev/null | grep -oP '\$2 = 0x\K[0-9a-f]+')
-    
+
     if [[ "$RC" == "0" ]]; then
         echo "Library unloaded successfully"
     else

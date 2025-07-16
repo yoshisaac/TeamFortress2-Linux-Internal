@@ -21,8 +21,8 @@ struct ray_t
 };
 
 struct trace_filter {
-  void **vtable;
-  void *skip;
+  void** vtable;
+  void* skip;
 };
 
 struct cplane_t {
@@ -34,7 +34,7 @@ struct cplane_t {
 };
 
 struct csurface_t {
-  const char *name;
+  const char* name;
   short surface_props;
   unsigned short flags;
 };
@@ -52,19 +52,24 @@ struct trace_t {
   struct csurface_t surface;
   int hit_group;
   short physics_bone;
-  void *entity;
+  void* entity;
   int hitbox;
 
   // bool did_hit() const { return m_fraction < 1.f || m_allsolid || m_start_solid; }
 };
 
-
+//add a namespace or class for these functions and vars
 bool should_hit_entity(struct trace_filter* interface, void* entity, int contents_mask) {
   return entity != interface->skip;
 }
 
+enum trace_type_t trace_type = TRACE_EVERYTHING;
+void set_type(enum trace_type_t new_trace_type) {
+  trace_type = new_trace_type;
+}
+
 enum trace_type_t get_type(struct trace_filter* interface) {
-  return TRACE_EVERYTHING_FILTER_PROPS;
+  return trace_type;
 }
 
 static void* trace_filter_vtable[2] = { (void*)should_hit_entity, (void*)get_type };

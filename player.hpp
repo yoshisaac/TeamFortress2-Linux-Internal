@@ -19,15 +19,15 @@ enum {
 };
 
 struct player_info {
-	char name[32];
-	int user_id;
-	char guid[33];
-	unsigned long friends_id;
-	char friends_name[32];
-	bool fakeplayer;
-	bool ishltv;
-	unsigned long custom_files[4];
-	unsigned char files_downloaded;
+  char name[32];
+  int user_id;
+  char guid[33];
+  unsigned long friends_id;
+  char friends_name[32];
+  bool fakeplayer;
+  bool ishltv;
+  unsigned long custom_files[4];
+  unsigned char files_downloaded;
 };
 
 enum {
@@ -170,19 +170,21 @@ enum {
   TF_COND_LAST
 };
 
-
+//Original of a hooked class function
+static bool (*in_cond_original)(void*, int);
+static void* (*get_weapon_original)(void*);
 
 class Player : public Entity {
 public:
 
-  inline static bool (*in_cond_original)(void*, int);
-  
-  void* get_shared(void) {
-    return (void*)(this + 0x1E78);
+  void* get_weapon(void) {
+    return get_weapon_original(this);
   }
 
-  bool in_cond(int condition) {
-    return in_cond_original(get_shared(), condition);
+  int get_weapon_id(void) {
+    void* weapon = get_weapon();
+    if (!weapon) return -1;
+    return *(int*)((unsigned long)weapon + 0x828);
   }
   
   int get_health(void) {
@@ -232,14 +234,6 @@ public:
   int get_class(void) {
     return *(int*)(this + 0x1BA0);
   }
-
-  bool should_draw(void) {
-    void** vtable = *(void ***)this;
-
-    bool (*should_draw_fn)(void*) = (bool (*)(void*))vtable[302];
-
-    return should_draw_fn(this);
-  }
   
   Vec3 get_bone_pos(int bone_num) {
     // 128 bones, 3x4 matrix
@@ -286,6 +280,14 @@ public:
 
   bool is_thirdperson(void) {
     return *(bool*)(this + 0x240C);
+  }  
+  
+  void* get_shared(void) {
+    return (void*)(this + 0x1E78);
+  }
+
+  bool in_cond(int condition) {
+    return in_cond_original(get_shared(), condition);
   }
   
   bool is_scoped(void) {

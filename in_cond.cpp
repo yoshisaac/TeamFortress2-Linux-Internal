@@ -8,7 +8,7 @@ bool in_cond_hook(void* me, int mask) {
     return false;
   }
 
-  bool re = Player::in_cond_original(me, mask);
+  bool re = in_cond_original(me, mask);
   
   return re;
 }

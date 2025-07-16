@@ -12,13 +12,15 @@
 bool is_player_visible(Player* localplayer, Player* entity, int bone) {
   Vec3 target_pos = entity->get_bone_pos(bone);
   Vec3 start_pos  = localplayer->get_shoot_pos();
-
+  
   struct ray_t ray = engine_trace->init_ray(&start_pos, &target_pos);
   struct trace_filter filter;
   engine_trace->init_trace_filter(&filter, localplayer);
   
   struct trace_t trace;
   engine_trace->trace_ray(&ray, 0x4200400b, &filter, &trace);
+
+  //print("%d\n", trace.surface.flags);
   
   if (trace.entity == entity || trace.fraction > 0.97f) {
     return true;
@@ -76,13 +78,14 @@ void aimbot(user_cmd* user_cmd) {
 	player == localplayer || 
 	player->is_dormant() || 
 	player->get_team() == localplayer->get_team() ||
-	player->get_lifestate() != 1
+	player->get_lifestate() != 1 ||
+	player->in_cond(TF_COND_INVULNERABLE) == true
 	) {
       continue;
     }
 
     int bone;
-    if (localplayer->is_scoped() && //temp magic number until i find out how the mask works and can label each bit
+    if (localplayer->is_scoped() &&
 	localplayer->get_class() == CLASS_SNIPER &&
 	player->get_health() > 50)
       bone = player->get_head_bone();

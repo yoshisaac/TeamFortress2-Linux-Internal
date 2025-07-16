@@ -61,6 +61,17 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
   }
   
   if (user_cmd->tick_count > 1) {
+
+    //heatmaker: 3437
+    
+    //print("%p - %d\n", localplayer->get_weapon(), localplayer->get_weapon_id());
+    //possible getweapon function
+    //1D44570 //meta func with two funcs
+    // sub_14E5E20 or sub_147F910
+
+    //offset 11D0
+
+    
     
     //thirdperson
     static bool was_pressed = false;
