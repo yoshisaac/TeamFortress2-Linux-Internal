@@ -74,6 +74,7 @@ struct Visuals {
 struct Misc {
   nk_bool bhop = true;
   nk_bool bypasspure = true;
+  nk_bool no_push = false;
 };
 
 struct Config {
