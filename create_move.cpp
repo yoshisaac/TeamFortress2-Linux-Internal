@@ -91,6 +91,18 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
     
     aimbot(user_cmd);
 
+    //no push
+    static Convar* nopush = convar_system->find_var("tf_avoidteammates_pushaway");
+    if (config.misc.no_push == true && nopush) {
+      if (nopush->get_int() != 0) {
+        nopush->set_int(0);
+      }
+    } else if (config.misc.no_push == false && nopush) {
+      if (nopush->get_int() != 1) {
+        nopush->set_int(1);
+      }
+    }
+    
     //bhop
     static bool was_jumping = false;
     bool on_ground = (localplayer->get_ent_flags() & FL_ONGROUND);

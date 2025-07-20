@@ -124,6 +124,7 @@ void draw_misc_tab(struct nk_context* ctx) {
   NK_HEADER_ROW(ctx, "General", NK_TEXT_CENTERED); {
     NK_CHECKBOX_ROW(ctx, "Bhop", &config.misc.bhop);
     NK_CHECKBOX_ROW(ctx, "Bypass sv_pure", &config.misc.bypasspure);
+    NK_CHECKBOX_ROW(ctx, "No Push", &config.misc.no_push);
   }  
 }
 
