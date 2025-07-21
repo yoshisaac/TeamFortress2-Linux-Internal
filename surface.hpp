@@ -1,6 +1,8 @@
 #ifndef SURFACE_HPP
 #define SURFACE_HPP
 
+#include <wchar.h>
+
 class Surface {
 public:
   void set_rgba(int r, int g, int b, int a) {
@@ -53,6 +55,10 @@ public:
     return text_set_font_glyph_set_fn(this, font, name, tall, weight, blur, scanlines, flags, 0, 0);
   }
 
+  int get_font_height(unsigned long font) {
+    return 14; //CHANGE ME: use virtual function GetFontTall instead
+  }
+  
   int get_character_width(unsigned long font, int character) {
     void** vtable = *(void ***)this;
 
@@ -61,6 +67,14 @@ public:
     return draw_set_text_font_fn(this, font, character);
   }
 
+  unsigned int get_string_width(unsigned long font, const wchar_t* string) {
+    unsigned int string_width = 0;
+    for (unsigned int i = 0; i < wcslen(string); ++i) {
+      string_width += get_character_width(font, string[i]);
+    }
+
+    return string_width;
+  }
   
   void draw_set_text_font(unsigned long font) {
     void** vtable = *(void ***)this;

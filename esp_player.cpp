@@ -100,10 +100,7 @@ void name_esp_player(Vec3 screen, Vec3 screen_offset, Player* player, unsigned i
     size_t len = mbstowcs(name, pinfo.name, 32);
     if (len == (size_t)-1) return;
 
-    unsigned int name_length = 0;
-    for (unsigned int i = 0; i < wcslen(name); ++i) {
-      name_length += surface->get_character_width(esp_player_font, name[i]);
-    }
+    unsigned int name_length = surface->get_string_width(esp_player_font, name);
     
     surface->draw_set_text_color(255, 255, 255, 255);
     surface->draw_set_text_pos(screen.x - (name_length/2.f) , screen_offset.y - 13);  
@@ -113,12 +110,16 @@ void name_esp_player(Vec3 screen, Vec3 screen_offset, Player* player, unsigned i
 }
 
 void flags_esp_player(Vec3 screen, Vec3 screen_offset, Player* player) {
-  if (config.esp.player.target_indicator == true && player == target_player) {
+  float flags_x_offset = (screen.y - screen_offset.y)/4;
+  float flags_y_offset = 0;
+    
+  if (player == target_player && config.esp.player.target_indicator == true) {
     surface->draw_set_text_color(255, 0, 0, 255);
-    float flags_offset = (screen.y - screen_offset.y)/4;
-    surface->draw_set_text_pos(screen.x + flags_offset + surface->get_character_width(esp_player_font, 'A'), screen_offset.y);
+    surface->draw_set_text_pos(screen.x + flags_x_offset + surface->get_character_width(esp_player_font, L"TARGET"[0]), screen_offset.y + flags_y_offset);
 
     surface->draw_print_text(L"TARGET", wcslen(L"TARGET"));
+
+    flags_y_offset += surface->get_font_height(esp_player_font);
   }
 }
 

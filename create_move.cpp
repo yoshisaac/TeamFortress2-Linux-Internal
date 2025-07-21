@@ -55,24 +55,13 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 
   Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
 
-  if (!localplayer) {
+  if (localplayer == nullptr) {
     print("localplayer is NULL\n");
     return rc;
   }
   
   if (user_cmd->tick_count > 1) {
 
-    //heatmaker: 3437
-    
-    //print("%p - %d\n", localplayer->get_weapon(), localplayer->get_weapon_id());
-    //possible getweapon function
-    //1D44570 //meta func with two funcs
-    // sub_14E5E20 or sub_147F910
-
-    //offset 11D0
-
-    
-    
     //thirdperson
     static bool was_pressed = false;
     static bool do_thirdperson = false;
@@ -93,11 +82,11 @@ bool create_move_hook(void* me, float sample_time, user_cmd* user_cmd) {
 
     //no push
     static Convar* nopush = convar_system->find_var("tf_avoidteammates_pushaway");
-    if (config.misc.no_push == true && nopush) {
+    if (nopush != nullptr && config.misc.no_push == true) {
       if (nopush->get_int() != 0) {
         nopush->set_int(0);
       }
-    } else if (config.misc.no_push == false && nopush) {
+    } else if (nopush != nullptr && config.misc.no_push == false) {
       if (nopush->get_int() != 1) {
         nopush->set_int(1);
       }

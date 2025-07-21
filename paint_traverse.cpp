@@ -19,7 +19,7 @@ void (*paint_traverse_original)(void*, void*, __int8_t, __int8_t) = NULL;
 
 void* vgui;
 const char* get_panel_name(void* panel) {
-    void **vtable = *(void ***)vgui;
+    void** vtable = *(void ***)vgui;
 
     const char* (*get_panel_name_fn)(void*, void*) = (const char* (*)(void*, void*))vtable[37];
 
@@ -41,7 +41,6 @@ void paint_traverse_hook(void* me, void* panel, __int8_t force_repaint, __int8_t
   paint_traverse_original(me, panel, force_repaint, allow_force);
 
   //print("%s\n", panel_name.c_str());
-  
   
   if (panel_name != "MatSystemTopPanel") {
     return;

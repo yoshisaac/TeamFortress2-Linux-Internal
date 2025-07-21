@@ -19,8 +19,6 @@ bool is_player_visible(Player* localplayer, Player* entity, int bone) {
   
   struct trace_t trace;
   engine_trace->trace_ray(&ray, 0x4200400b, &filter, &trace);
-
-  //print("%d\n", trace.surface.flags);
   
   if (trace.entity == entity || trace.fraction > 0.97f) {
     return true;
@@ -74,7 +72,7 @@ void aimbot(user_cmd* user_cmd) {
     Player* player = entity_list->player_from_index(i);
     Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
 
-    if (player == NULL || 
+    if (player == nullptr || 
 	player == localplayer || 
 	player->is_dormant() || 
 	player->get_team() == localplayer->get_team() ||
@@ -84,13 +82,17 @@ void aimbot(user_cmd* user_cmd) {
       continue;
     }
 
-    int bone;
-    if (localplayer->is_scoped() &&
-	localplayer->get_class() == CLASS_SNIPER &&
-	player->get_health() > 50)
-      bone = player->get_head_bone();
-    else
+    int bone = 2;
+    if (localplayer->get_class() == CLASS_SNIPER) {
+      if (localplayer->is_scoped() && player->get_health() > 50)
+	bone = player->get_head_bone();
+    } else if (localplayer->get_class() == CLASS_SPY) {
+      Weapon* weapon = localplayer->get_weapon();
+      if (weapon != nullptr && weapon->can_headshot())
+	bone = player->get_head_bone();
+    } else {
       bone = 2;
+    }
     
     Vec3 diff = {player->get_bone_pos(bone).x - localplayer->get_shoot_pos().x,
 		 player->get_bone_pos(bone).y - localplayer->get_shoot_pos().y,
@@ -106,7 +108,6 @@ void aimbot(user_cmd* user_cmd) {
       .y = yaw_angle,
       .z = 0
     };
-
       
     float x_diff = view_angles.x - original_view_angle.x;
     float y_diff = view_angles.y - original_view_angle.y;

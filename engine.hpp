@@ -1,7 +1,8 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include "player.hpp"
+class Player;
+struct player_info;
 
 #include "vec.hpp"
 
