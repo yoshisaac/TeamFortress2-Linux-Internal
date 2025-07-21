@@ -6,8 +6,6 @@
 
 #include "vec.hpp"
 
-#include "print.hpp"
-
 enum class_id {
   AMMO_OR_HEALTH_PACK = 1,
   DISPENSER = 86,

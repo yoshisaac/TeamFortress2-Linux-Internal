@@ -1,7 +1,11 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+#include "entity_list.hpp"
+
 #include "entity.hpp"
+
+#include "weapon.hpp"
 
 #include "vec.hpp"
 
@@ -172,21 +176,21 @@ enum {
 
 //Original of a hooked class function
 static bool (*in_cond_original)(void*, int);
-static void* (*get_weapon_original)(void*);
+
+//TODO/NOTE: Something useful would be a network variable helper.
+//           There are a lot of magical offsets to specific structures, and those offsets have a string key associated with them.
 
 class Player : public Entity {
 public:
 
-  void* get_weapon(void) {
-    return get_weapon_original(this);
+  int get_weapon_handle(void) {
+    return *(int*)(this + 0x11D0);
   }
 
-  int get_weapon_id(void) {
-    void* weapon = get_weapon();
-    if (!weapon) return -1;
-    return *(int*)((unsigned long)weapon + 0x828);
+  Weapon* get_weapon(void) {
+    return (Weapon*)entity_list->entity_from_handle(get_weapon_handle());
   }
-  
+   
   int get_health(void) {
     return *(int*)(this + 0xD4);
   }
@@ -300,3 +304,4 @@ public:
 };
 
 #endif
+

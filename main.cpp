@@ -125,8 +125,6 @@ void entry() {
 
   load_white_list_original = (void* (*)(void*, const char*))((unsigned long)engine_base_address + 0x3B3880);
 
-  get_weapon_original = (void* (*)(void*))((unsigned long)client_base_address + 0x1CDBAC0);
-  
   int rv;
   
   rv = funchook_prepare(funchook, (void**)&in_cond_original, (void*)in_cond_hook);
