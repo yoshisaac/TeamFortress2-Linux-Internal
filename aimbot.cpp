@@ -71,7 +71,7 @@ void aimbot(user_cmd* user_cmd) {
   for (unsigned int i = 1; i <= entity_list->get_max_entities(); ++i) {
     Player* player = entity_list->player_from_index(i);
     Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
-
+    
     if (player == nullptr || 
 	player == localplayer || 
 	player->is_dormant() || 

@@ -10,7 +10,7 @@ class EntityList {
 public:
   Entity* entity_from_index(unsigned int index) {
     void** vtable = *(void ***)this;
-    
+     
     Entity* (*entity_from_index_fn)(void*, unsigned int) = (Entity* (*)(void*, unsigned int))vtable[3];
     
     return entity_from_index_fn(this, index);

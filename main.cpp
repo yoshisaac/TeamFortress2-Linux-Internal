@@ -122,15 +122,9 @@ void entry() {
      // ShouldDraw would maybe be better, but this works good for now. :3
    */
 
-  void* client_base_address = get_module_base_address("client.so");
-  void* engine_base_address = get_module_base_address("engine.so");
-
-  //in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
-
-  in_cond_original = (bool (*)(void*, int))sigscan_module("client\\.so", "55 83 FE ? 48 89 E5 41 54 41 89 F4");  
-  //in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
-
-  load_white_list_original = (void* (*)(void*, const char*))((unsigned long)engine_base_address + 0x3B3880);
+  in_cond_original = (bool (*)(void*, int))sigscan_module("client.so", "55 83 FE ? 48 89 E5 41 54 41 89 F4");
+  
+  load_white_list_original = (void* (*)(void*, const char*))sigscan_module("engine.so", "55 48 89 E5 41 55 41 54 49 89 FC 48 83 EC ? 48 8B 07 FF 50");
 
   int rv;
   
@@ -141,6 +135,16 @@ void entry() {
   rv = funchook_prepare(funchook, (void**)&load_white_list_original, (void*)load_white_list_hook);
   if (rv != 0) {
   }  
+
+  rv = funchook_install(funchook, 0);
+  if (rv != 0) {
+    print("Non-VMT related hooks failed\n");
+  } else {
+    print("InCond hooked\n");
+    print("LoadWhiteList hooked\n");
+    print("vkQueuePresentKHR hooked\n");
+  }
+  
   void* lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
 
   if (!lib_sdl_handle) {
