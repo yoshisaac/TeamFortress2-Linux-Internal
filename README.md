@@ -33,7 +33,7 @@ $ sudo pacman -S #TODO
 ### Compiling
 Build the program from source.  
 ```bash
-$ make
+$ ./build.sh
 ...
 ```
 
