@@ -17,8 +17,10 @@
 
 #include "hooks.cpp"
 #include "memory.hpp"
+#include "libsigscan/libsigscan.h"
 #include "funchook/funchook.h"
- 
+
+
 #include "sdl.cpp"
 //#include "vulkan.cpp"
 
@@ -35,6 +37,8 @@
 void** client_mode_vtable;
 void** vgui_vtable;
 void** model_render_vtable;
+
+
 funchook_t* funchook;
 
 __attribute__((constructor))
@@ -120,8 +124,11 @@ void entry() {
 
   void* client_base_address = get_module_base_address("client.so");
   void* engine_base_address = get_module_base_address("engine.so");
-  
-  in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
+
+  //in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
+
+  in_cond_original = (bool (*)(void*, int))sigscan_module("client\\.so", "55 83 FE ? 48 89 E5 41 54 41 89 F4");  
+  //in_cond_original = (bool (*)(void*, int))((unsigned long)client_base_address + 0x1CD4920); //raw dog the base address (this is fucking stupid, use a signature instead)
 
   load_white_list_original = (void* (*)(void*, const char*))((unsigned long)engine_base_address + 0x3B3880);
 
@@ -133,8 +140,7 @@ void entry() {
 
   rv = funchook_prepare(funchook, (void**)&load_white_list_original, (void*)load_white_list_hook);
   if (rv != 0) {
-  }
-    
+  }  
   void* lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
 
   if (!lib_sdl_handle) {
@@ -177,15 +183,6 @@ void entry() {
   }  
   */
   
-  rv = funchook_install(funchook, 0);
-  if (rv != 0) {
-    print("Non-VMT related hooks failed\n");
-  } else {
-    print("InCond hooked\n");
-    print("LoadWhiteList hooked\n");
-    print("vkQueuePresentKHR hooked\n");
-  }
-
   //dlclose(lib_vulkan_handle);
 
   
@@ -223,7 +220,6 @@ void exit() {
   
   funchook_uninstall(funchook, 0);
 
-  
   void *lib_sdl_handle = dlopen("/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
 
   if (!restore_sdl_hook(lib_sdl_handle, "SDL_GL_SwapWindow", (void*)swap_window_original)) {

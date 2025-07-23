@@ -3,6 +3,11 @@
 LIB_PATH=$(pwd)/tf2.so
 PROCID=$(pgrep tf_linux64 | head -n 1)
 
+if [ -z "$PROCID" ]; then
+    echo "Please open game"
+    exit 1
+fi
+
 unload() {
     echo -e "\nUnloading library with handle $LIB_HANDLE"
     
