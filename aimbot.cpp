@@ -131,7 +131,7 @@ void aimbot(user_cmd* user_cmd) {
       target_player = nullptr;
 
     
-    if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && config.aimbot.auto_shoot == true && target_player == player)
+    if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && config.aimbot.auto_shoot == true && target_player == player && localplayer->can_shoot())
       user_cmd->buttons |= 1;    
       
     if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && (user_cmd->buttons & 1) != 0 && target_player == player)

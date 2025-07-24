@@ -744,7 +744,7 @@ public:
   }
 
   bool can_headshot(void) {
-    int weapon_type_id = get_type_id();
+    int weapon_type_id = this->get_type_id();
     if (weapon_type_id == TF_WEAPON_SNIPERRIFLE ||
 	weapon_type_id == TF_WEAPON_SNIPERRIFLE_CLASSIC ||
 	weapon_type_id == TF_WEAPON_SNIPERRIFLE_DECAP)
@@ -752,7 +752,7 @@ public:
 	return true;
       }
 
-    int weapon_def_id = get_def_id();
+    int weapon_def_id = this->get_def_id();
     if (weapon_def_id == Spy_m_TheAmbassador ||
 	weapon_def_id == Spy_m_FestiveAmbassador)
       {
@@ -761,6 +761,10 @@ public:
 
     return false;
 	
+  }
+
+  float get_next_attack(void) {
+    return *(float*)(this + 0xe94);
   }
 
 };

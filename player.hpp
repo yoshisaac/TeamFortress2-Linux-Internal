@@ -252,7 +252,7 @@ public:
 
   
   int get_head_bone(void) {
-    switch (get_class()) {
+    switch (this->get_class()) {
     case CLASS_SCOUT:
     case CLASS_PYRO:
     case CLASS_SPY:
@@ -296,6 +296,24 @@ public:
   
   bool is_scoped(void) {
     return in_cond_original(get_shared(), TF_COND_ZOOMED);
+  }
+
+  int get_tickbase(void) {
+    return *(int*)(this + 0x1718);
+  }
+  
+  bool can_shoot(void) {
+    Weapon* weapon = this->get_weapon();
+    if (!weapon)
+      return false;
+    
+    if (this->get_class() == CLASS_HEAVYWEAPONS)
+      return true;
+
+    float cd = weapon->get_next_attack();
+    float time = this->get_tickbase() * 0.015f; // i'm gonna explode - rosne
+    
+    return (cd < time);
   }
   
   Entity* to_entity(void) {
