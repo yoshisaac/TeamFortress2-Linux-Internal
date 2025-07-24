@@ -28,6 +28,8 @@ $ ./packages/debian.sh
 Arch Package Manager (pacman):  
 ```bash
 $ ./packages/arch.sh
+[sudo] password for user:
+...
 ```
 
 
