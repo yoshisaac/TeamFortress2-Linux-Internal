@@ -66,4 +66,3 @@ Library loaded successfully at 0x12345678900. Use Ctrl+C to unload.
 # TODO
 * Make better menu with SDL+IMGUI
 * Make better build system
-* Add Arch packages
