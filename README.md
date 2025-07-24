@@ -27,8 +27,9 @@ $ ./packages/debian.sh
   
 Arch Package Manager (pacman):  
 ```bash
-$ sudo pacman -S #TODO
+$ ./packages/arch.sh
 ```
+
 
 ### Compiling
 Build the program from source.  
