@@ -5,6 +5,7 @@
 #include "entity_list.hpp"
 #include "engine.hpp"
 #include "engine_trace.hpp"
+#include "convar_system.hpp"
 
 #include "config.hpp"
 #include "player.hpp"
@@ -61,21 +62,34 @@ void aimbot(user_cmd* user_cmd) {
     target_player = nullptr;
     return;
   }
+
+  Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
+  if (localplayer->get_lifestate() != 1) {
+    target_player = nullptr;
+    return;
+  }
   
   Vec3 original_view_angle = user_cmd->view_angles;
   float original_side_move = user_cmd->sidemove;
   float original_forward_move = user_cmd->forwardmove;
+  bool friendlyfire = false;
+  static Convar* friendlyfirevar = convar_system->find_var("mp_friendlyfire");
+
+  if (friendlyfirevar != nullptr) {
+    if (friendlyfirevar->get_int() != 0) {
+      friendlyfire = true;
+    }
+  }
 
   float smallest_fov_angle = __FLT_MAX__;
 
   for (unsigned int i = 1; i <= entity_list->get_max_entities(); ++i) {
     Player* player = entity_list->player_from_index(i);
-    Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
-    
+
     if (player == nullptr || 
 	player == localplayer || 
 	player->is_dormant() || 
-	player->get_team() == localplayer->get_team() ||
+	(player->get_team() == localplayer->get_team() && friendlyfire == false) ||
 	player->get_lifestate() != 1 ||
 	player->in_cond(TF_COND_INVULNERABLE) == true
 	) {
