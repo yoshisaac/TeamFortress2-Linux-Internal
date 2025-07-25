@@ -11,6 +11,7 @@
 #include "render_view.hpp"
 #include "entity_list.hpp"
 #include "engine.hpp"
+#include "convar_system.hpp"
 
 extern unsigned long esp_player_font;
 
@@ -128,20 +129,28 @@ void skeleton_esp_player(Player* player) {
 }
 
 void esp_player(unsigned int i, Player* player) {
-  Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());
-    
-  if (player == localplayer ||
-      player->is_dormant() ||
-      player->get_lifestate() != 1 ||
-      player->get_team() == localplayer->get_team()) {
-    return;
+
+  bool friendlyfire = false;
+  static Convar* friendlyfirevar = convar_system->find_var("mp_friendlyfire");
+  if (friendlyfirevar != nullptr) {
+    if (friendlyfirevar->get_int() != 0) {
+      friendlyfire = true;
+    }
   }
 
   
+  Player* localplayer = entity_list->player_from_index(engine->get_localplayer_index());  
+  if (player == localplayer ||
+      player->is_dormant() ||
+      player->get_lifestate() != 1 ||
+      (player->get_team() == localplayer->get_team() && friendlyfire == false)) {
+    return;
+  }
+
+  /*
   //bone draw ID debug
   surface->set_rgba(255, 255, 255, 255);
   for (unsigned int h = 0; h < 128; ++h) {
-    break;
     Vec3 bone = player->get_bone_pos(h);
     Vec3 bone_screen;
     render_view->world_to_screen(&bone, &bone_screen);
@@ -149,7 +158,7 @@ void esp_player(unsigned int i, Player* player) {
     std::wstring a = std::to_wstring(h);
     surface->draw_print_text(a.c_str(), wcslen(a.c_str()));
   }
-
+  */
   
   Vec3 location = player->get_origin();
   Vec3 screen;

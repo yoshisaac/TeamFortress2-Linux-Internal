@@ -72,9 +72,9 @@ void aimbot(user_cmd* user_cmd) {
   Vec3 original_view_angle = user_cmd->view_angles;
   float original_side_move = user_cmd->sidemove;
   float original_forward_move = user_cmd->forwardmove;
+
   bool friendlyfire = false;
   static Convar* friendlyfirevar = convar_system->find_var("mp_friendlyfire");
-
   if (friendlyfirevar != nullptr) {
     if (friendlyfirevar->get_int() != 0) {
       friendlyfire = true;
