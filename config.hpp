@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_scancode.h>
+/*
 #include <cstdint>
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -15,7 +16,10 @@
 #define NK_SDL_GL3_IMPLEMENTATION
 #include "nuklear/nuklear.h"
 #include "nuklear/nuklear_sdl_gl3.h"
+*/
 
+
+#define nk_bool bool
 
 enum input_type {
   INPUT_NONE,
@@ -35,7 +39,7 @@ struct Aim {
   
   nk_bool silent = true;
   
-  struct button key = {.button = SDL_BUTTON_X1, .button_type = INPUT_MOUSE};
+  struct button key = {.button = 1, .button_type = INPUT_MOUSE};
   nk_bool use_key = true;
   
   float fov = 45;
@@ -88,6 +92,8 @@ inline static Config config;
 
 
 static bool is_button_down(struct button button) {
+  return true;
+  /*
   if (button.button_type == INPUT_KEY) {
   
     const uint8_t* keys = SDL_GetKeyboardState(NULL);
@@ -108,9 +114,13 @@ static bool is_button_down(struct button button) {
   }  
 
   return false;
+  */
 }
 
 static void get_button_down(struct button* button) {
+  return;
+
+  /*
   const Uint8* keyboard_state = SDL_GetKeyboardState(NULL);
   for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
     if (keyboard_state[i]) {
@@ -128,6 +138,8 @@ static void get_button_down(struct button* button) {
       break;
     }
   }
+  */
+  
 }
 
 #endif

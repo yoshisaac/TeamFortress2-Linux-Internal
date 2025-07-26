@@ -8,6 +8,7 @@
 
 inline static bool menu_focused = false;
 
+/*
 void set_style(nk_context* ctx) {
   struct nk_color table[NK_COLOR_COUNT];
   memcpy(table, nk_default_color_style, sizeof(nk_default_color_style));
@@ -174,3 +175,4 @@ void draw_menu(struct nk_context* ctx) {
   }
   nk_end(ctx);
 }
+*/
