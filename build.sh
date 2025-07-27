@@ -8,7 +8,7 @@ fi
 if [ ! -d "libs/funchook" ]; then
     mkdir libs
     cd libs
-    git clone https://github.com/yoshisaac/funchook.git
+    git clone https://github.com/Doctor-Coomer/funchook.git
     cd funchook
     mkdir build
     cd build
