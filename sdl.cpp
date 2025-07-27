@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 
+#include "imgui/dearimgui.hpp"
+
 #include "config.hpp"
 #include "surface.hpp"
 
@@ -8,53 +10,38 @@
 
 #include "menu.cpp"
 
-void (*swap_window_original)(void *) = NULL;
-int (*poll_event_original)(SDL_Event *) = NULL;
+void (*swap_window_original)(void*) = NULL;
+bool (*poll_event_original)(SDL_Event*) = NULL;
 
-int poll_event_hook(SDL_Event *event) {
-  int ret = poll_event_original(event);
-  nk_sdl_handle_event(event);
 
-  /*
-  if (ret && nk_sdl_handle_event(event)) {
-    
-    const Uint8* keyboard_state = SDL_GetKeyboardState(NULL);
-    
-    for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
 
-      if (keyboard_state[i]) {
-	
-      }
-    }
+bool poll_event_hook(SDL_Event* event) {
+  bool ret = poll_event_original(event);
 
-    Uint32 mouse_state = SDL_GetMouseState(NULL, NULL);            
-    for (int i = SDL_BUTTON_LEFT; i <= SDL_BUTTON_X2; i++) {
-      if (mouse_state & SDL_BUTTON(i)) {
-
-      }
-    }
-
-    return ret;
-  }
-  */
+  if (ret)
+    ImGui_ImplSDL2_ProcessEvent(event);
+  
+  get_input(event);
   
   return ret;
 }
 
-void watermark(nk_context* ctx) {
-  if (nk_begin(ctx, "watermark", nk_rect(10, 10, 150, 30), NK_WINDOW_BORDER | NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR)) {
-    NK_TEXT_ROW(ctx, "I Use Arch BTW!!!", NK_TEXT_CENTERED);
-  }
+void watermark() {
+  {
+    ImGui::SetNextWindowPos(ImVec2(10, 10)); 
+    ImGui::SetNextWindowSize(ImVec2(150, 30));
+    ImGui::Begin("a", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+    
+    ImGui::TextCentered("I Use Arch BTW!!!");
+    ImGui::End();
 
-  nk_end(ctx);
+  }
 }
 
-
 void swap_window_hook(SDL_Window* window) {
-  static struct nk_context* context = NULL;
-  static SDL_GLContext original_context, new_context;
-
-  if (!context) {
+  static SDL_GLContext original_context = NULL, new_context = NULL;
+  
+  if (!new_context) {
     original_context = SDL_GL_GetCurrentContext();
     new_context = SDL_GL_CreateContext(window);
 
@@ -65,31 +52,43 @@ void swap_window_hook(SDL_Window* window) {
       return;
     }
     
-    context = nk_sdl_init(window);
-
-    set_style(context);
-        
-    struct nk_font_atlas* atlas = NULL;
-    nk_sdl_font_stash_begin(&atlas);
-    nk_sdl_font_stash_end();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplOpenGL3_Init("#version 100");
+    ImGui_ImplSDL2_InitForOpenGL(window, nullptr);    
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
+    
+    orig_style = ImGui::GetStyle();
   }
 
-  SDL_GL_MakeCurrent(window, new_context);
-  get_input(context);
-  watermark(context);
   
-  if (menu_focused) {
-    draw_menu(context);
+  SDL_GL_MakeCurrent(window, new_context);
+  
+  if (ImGui::IsKeyPressed(ImGuiKey_Insert, false)) {
+    menu_focused = !menu_focused;
+    surface->set_cursor_visible(menu_focused);
   }
+  
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplSDL2_NewFrame();
+  ImGui::NewFrame();
 
-#define MAX_VERTEX_MEMORY 512 * 1024
-#define MAX_ELEMENT_MEMORY 128 * 1024
+  if (menu_focused) {
+    draw_menu();
+  }
+  
+  watermark();
 
-  nk_sdl_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_MEMORY, MAX_ELEMENT_MEMORY);
+  
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+  /*  
+  get_input(context);
+  */
 
   SDL_GL_MakeCurrent(window, original_context);
 
-  nk_input_begin(context);
   swap_window_original(window);
-  nk_input_end(context);
 }

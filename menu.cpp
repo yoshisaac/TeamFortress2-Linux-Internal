@@ -1,176 +1,216 @@
 #include "config.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_internal.h"
 #include "print.hpp"
 
 #include "surface.hpp"
+
+#include "imgui/dearimgui.hpp"
 
 #include <SDL2/SDL_mouse.h>
 
 inline static bool menu_focused = false;
 
-void set_style(nk_context* ctx) {
-  struct nk_color table[NK_COLOR_COUNT];
-  memcpy(table, nk_default_color_style, sizeof(nk_default_color_style));
+static ImGuiStyle orig_style;
 
-  table[NK_COLOR_TOGGLE_CURSOR] = nk_rgba(207, 115, 54, 255);
-  table[NK_COLOR_TOGGLE_HOVER] = nk_rgba(207, 115, 54, 255 / 2);
-
-  nk_style_from_table(ctx, table);
+void get_input(SDL_Event* event) {
+  ImGui::KeybindEvent(event, &config.aimbot.key.waiting, &config.aimbot.key.button);
+  ImGui::KeybindEvent(event, &config.visuals.thirdperson_key.waiting, &config.visuals.thirdperson_key.button);
 }
 
-
-void get_input(nk_context* ctx) {
-  if (nk_input_is_key_pressed(&ctx->input, NK_KEY_DEL)) {
-    menu_focused = !menu_focused;
-    surface->set_cursor_visible(menu_focused);
-  }
-}
+void draw_aim_tab() {
+  ImGui::NewLine();
+  ImGui::Checkbox("Master", &config.aimbot.master);
 
 
-void draw_aim_tab(struct nk_context* ctx) {
-  NK_CHECKBOX_ROW(ctx, "Master", &config.aimbot.master);
+  ImGui::EndGroup();
 
-  NK_CHECKBOX_ROW(ctx, "Auto Shoot", &config.aimbot.auto_shoot);
+  ImGui::SameLine();
+  ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+  ImGui::SameLine();
+
+
+  ImGui::BeginGroup();
+
+  ImGui::Checkbox("Auto Shoot", &config.aimbot.auto_shoot);  
+
+  ImGui::Text("Aimbot botton: ");
+  ImGui::SameLine();
+  ImGui::KeybindBox(&config.aimbot.key.waiting, &config.aimbot.key.button);
+  ImGui::SameLine();
+  ImGui::Checkbox("Use Button", &config.aimbot.use_key);
+
+  ImGui::Checkbox("Silent", &config.aimbot.silent);
+
   
-  nk_layout_row_static(ctx, 20, 100, 5);
-  nk_label(ctx, "Aimbot Button: ", NK_TEXT_LEFT);
-  char button_edit_buffer[64];
-  if (config.aimbot.key.button_type == INPUT_KEY) {
-    sprintf(button_edit_buffer, SDL_GetScancodeName((SDL_Scancode)config.aimbot.key.button));
-  } else if (config.aimbot.key.button_type == INPUT_MOUSE) {
-    switch (config.aimbot.key.button) {
-    case SDL_BUTTON_MIDDLE: 
-      sprintf(button_edit_buffer, "Middle Mouse"); break;
-    case SDL_BUTTON_RIGHT:
-      sprintf(button_edit_buffer, "Right Mouse"); break;
-    case SDL_BUTTON_X1:
-      sprintf(button_edit_buffer, "Side Mouse 1"); break;
-    case SDL_BUTTON_X2:
-      sprintf(button_edit_buffer, "Side Mouse 2"); break;}
-  }    
-  nk_button_set_behavior(ctx, NK_BUTTON_REPEATER);
-  if (nk_button_label(ctx, button_edit_buffer)) {
-    get_button_down(&config.aimbot.key);
-  }
-  nk_checkbox_label(ctx, "Use Button", &config.aimbot.use_key);
+  ImGui::Text("FOV: ");
+  ImGui::SameLine();
+  ImGui::SliderFloat(" ", &config.aimbot.fov, 0.1f, 180.0f, "%.0f\xC2\xB0");
+  
+  ImGui::Checkbox("Draw FOV", &config.aimbot.draw_fov);
+  
+  ImGui::EndGroup();  
+}
+
+void draw_esp_tab() {  
+  ImGui::NewLine();
+  ImGui::Checkbox("Master", &config.esp.master);
+
+  ImGui::EndGroup();
+
+  ImGui::SameLine();
+  ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+  ImGui::SameLine();
+
+  /* ESP */
+  ImGui::BeginGroup();  
+
+  //Player
+  ImGui::BeginGroup();
+  ImGui::Text("Player");
+  ImGui::Checkbox("Box##Player", &config.esp.player.box);
+  ImGui::Checkbox("Health Bar##Player", &config.esp.player.health_bar);
+  ImGui::Checkbox("Name##Player", &config.esp.player.name);
+  ImGui::NewLine();
+  ImGui::Text("Flags");
+  ImGui::Checkbox("Target Indicator##Player", &config.esp.player.health_bar);
+  ImGui::EndGroup();
+
+  ImGui::SameLine();
+  ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+  ImGui::SameLine();
+
+  //Pickups (health and ammo etc)
+  ImGui::BeginGroup();
+  ImGui::Text("Pickup");
+  ImGui::Checkbox("Box##Pickup", &config.esp.pickup.box);
+  ImGui::Checkbox("Name##Pickup", &config.esp.pickup.name);
+  ImGui::EndGroup();
     
-  
-  NK_CHECKBOX_ROW(ctx, "Silent", &config.aimbot.silent);    
-
-  char fov_text[32];
-  sprintf(fov_text, "FOV: %.0f\xC2\xB0", config.aimbot.fov);
-  NK_FLOAT_SLIDER_ROW(ctx, fov_text, &config.aimbot.fov, 1.0f, 180.0f, 1.0f); 
-  NK_CHECKBOX_ROW(ctx, "Draw FOV", &config.aimbot.draw_fov);    
-
-  NK_HEADER_ROW(ctx, "General", NK_TEXT_CENTERED); {
-  }
+  ImGui::EndGroup();
 }
 
-void draw_esp_tab(struct nk_context* ctx) {  
-  NK_CHECKBOX_ROW(ctx, "Master", &config.esp.master);
+void draw_visuals_tab() {
+  ImGui::EndGroup();
+
+  ImGui::SameLine();
+  ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+  ImGui::SameLine();
+
+  /* Visuals */
+  ImGui::BeginGroup();
+
+  /* Removals */ //maybe make me a drop down
+  ImGui::BeginGroup();
+  ImGui::Text("Removals");
+  ImGui::Checkbox("Scope", &config.visuals.hide_scope);
+  ImGui::Checkbox("Zoom", &config.visuals.remove_zoom);
+
+  ImGui::NewLine();
+  ImGui::NewLine();
+  ImGui::NewLine();
+  ImGui::NewLine();
   
-  NK_HEADER_ROW(ctx, "Player", NK_TEXT_CENTERED); {
-    NK_CHECKBOX_ROW(ctx, "Box", &config.esp.player.box);
-    NK_CHECKBOX_ROW(ctx, "Health Bar", &config.esp.player.health_bar);
-    NK_CHECKBOX_ROW(ctx, "Name", &config.esp.player.name);
-    NK_CHECKBOX_ROW(ctx, "Target Indicator", &config.esp.player.target_indicator);
-  }
-  
-  NK_HEADER_ROW(ctx, "Pickup", NK_TEXT_CENTERED); {
-    NK_CHECKBOX_ROW(ctx, "Box", &config.esp.pickup.box);
-    NK_CHECKBOX_ROW(ctx, "Name", &config.esp.pickup.name);
-  }
-}
+  ImGui::EndGroup();
 
-void draw_visuals_tab(struct nk_context* ctx) {
-  NK_HEADER_ROW(ctx, "General", NK_TEXT_CENTERED); {
-    NK_CHECKBOX_ROW(ctx, "Hide Scope", &config.visuals.hide_scope);
-    NK_CHECKBOX_ROW(ctx, "Remove Zoom", &config.visuals.remove_zoom);
+  ImGui::SameLine();
+  ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+  ImGui::SameLine();
 
-    nk_layout_row_static(ctx, 20, 100, 5);
-    nk_label(ctx, "Key: ", NK_TEXT_LEFT);
-    char button_edit_buffer[64];
-    if (config.visuals.thirdperson_key.button_type == INPUT_KEY) {
-      sprintf(button_edit_buffer, SDL_GetScancodeName((SDL_Scancode)config.visuals.thirdperson_key.button));
-    } else if (config.visuals.thirdperson_key.button_type == INPUT_MOUSE) {
-      switch (config.visuals.thirdperson_key.button) {
-      case SDL_BUTTON_MIDDLE: 
-	sprintf(button_edit_buffer, "Middle Mouse"); break;
-      case SDL_BUTTON_RIGHT:
-	sprintf(button_edit_buffer, "Right Mouse"); break;
-      case SDL_BUTTON_X1:
-	sprintf(button_edit_buffer, "Side Mouse 1"); break;
-      case SDL_BUTTON_X2:
-	sprintf(button_edit_buffer, "Side Mouse 2"); break;}
-    }    
-    nk_button_set_behavior(ctx, NK_BUTTON_REPEATER);
-    if (nk_button_label(ctx, button_edit_buffer)) {
-      get_button_down(&config.visuals.thirdperson_key);
-    }
-    nk_checkbox_label(ctx, "Thirdperson", &config.visuals.thirdperson);    
-
-  }
+  /* Camera */
+  ImGui::BeginGroup();
+  ImGui::Text("Camera");
+  ImGui::Text("Key: "); ImGui::SameLine();
+  ImGui::KeybindBox(&config.visuals.thirdperson_key.waiting, &config.visuals.thirdperson_key.button); ImGui::SameLine();
+  ImGui::Checkbox("Thirdperson", &config.visuals.thirdperson);  
 
   
-  NK_HEADER_ROW(ctx, "View", NK_TEXT_CENTERED); {
-    NK_CHECKBOX_ROW(ctx, "Override FOV", &config.visuals.override_fov);
-    char fov_text[32];
-    sprintf(fov_text, "FOV: %.0f\xC2\xB0", config.visuals.custom_fov);
-    NK_FLOAT_SLIDER_ROW(ctx, fov_text, &config.visuals.custom_fov, 30.0f, 150.0f, 1.0f); 
+  ImGui::NewLine();
+  ImGui::NewLine();
+  
+  ImGui::Checkbox("Override FOV", &config.visuals.override_fov);
+  ImGui::SliderFloat(" ", &config.visuals.custom_fov, 30.1f, 150.0f, "%.0f\xC2\xB0");
+  ImGui::EndGroup();
+  
+  ImGui::EndGroup();
+}
+
+void draw_misc_tab() {
+  ImGui::EndGroup();
+
+  ImGui::SameLine();
+  ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+  ImGui::SameLine();
+
+  ImGui::BeginGroup();
+  
+  ImGui::Text("General");
+  ImGui::Checkbox("Bhop", &config.misc.bhop);
+  ImGui::Checkbox("Bypass sv_pure", &config.misc.bypasspure);
+  ImGui::Checkbox("No Push", &config.misc.no_push);  
+
+  ImGui::EndGroup();
+}
+
+
+void draw_tab(ImGuiStyle* style, const char* name, int* tab, int index) {
+  ImVec4 orig_box_color = ImVec4(0.15, 0.15, 0.15, 1);
+  
+  if (*tab == index) {
+    style->Colors[ImGuiCol_Button] = ImVec4(orig_box_color.x + 0.15, orig_box_color.y + 0.15, orig_box_color.z + 0.15, 1.00f);
+  } else {
+    style->Colors[ImGuiCol_Button] = ImVec4(0.15, 0.15, 0.15, 1);
   }
+  
+  if (ImGui::Button(name, ImVec2(80, 30))) {
+    *tab = index;
+  }
+  style->Colors[ImGuiCol_Button] = ImVec4(0.15, 0.15, 0.15, 1);
 }
 
-void draw_misc_tab(struct nk_context* ctx) {
-  NK_HEADER_ROW(ctx, "General", NK_TEXT_CENTERED); {
-    NK_CHECKBOX_ROW(ctx, "Bhop", &config.misc.bhop);
-    NK_CHECKBOX_ROW(ctx, "Bypass sv_pure", &config.misc.bypasspure);
-    NK_CHECKBOX_ROW(ctx, "No Push", &config.misc.no_push);
-  }  
-}
-
-
-void draw_tab(struct nk_context* ctx, const char* name, int* tab, int index)
-{
-    if (*tab == index)
-    {
-        ctx->style.button.normal.data.color = nk_rgb(35, 35, 35);
-    }
-    else
-    {
-        ctx->style.button.normal.data.color = nk_rgb(50, 50, 50);
-    }
-    if (nk_button_label(ctx, name))
-    {
-        *tab = index;
-    }
-    ctx->style.button.normal.data.color = nk_rgb(50, 50, 50);
-}
-
-
-void draw_menu(struct nk_context* ctx) {
-  if (nk_begin(ctx, "Team Fortress 2 GNU/Linux", nk_rect(200, 200, 600, 350), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE)) {
+void draw_menu() {
+  ImGui::SetNextWindowSize(ImVec2(600, 350));
+  if (ImGui::Begin("Team Fortress 2 GNU/Linux", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
     static int tab = 0;
 
-    nk_layout_row_dynamic(ctx, 20, 4);
-    draw_tab(ctx, "Aim", &tab, 0);
-    draw_tab(ctx, "ESP", &tab, 1);
-    draw_tab(ctx, "Visuals", &tab, 2);
-    draw_tab(ctx, "Misc", &tab, 3);
+    ImGuiStyle* style = &ImGui::GetStyle();
+
+    style->Colors[ImGuiCol_WindowBg]         = ImVec4(0.1, 0.1, 0.1, 1);
+    style->Colors[ImGuiCol_TitleBgActive]    = ImVec4(0.05, 0.05, 0.05, 1);
+    style->Colors[ImGuiCol_TitleBg]          = ImVec4(0.05, 0.05, 0.05, 1);
+    style->Colors[ImGuiCol_CheckMark]        = ImVec4(0.869346734, 0.450980392, 0.211764706, 1);
+    style->Colors[ImGuiCol_FrameBg]          = ImVec4(0.15, 0.15, 0.15, 1);
+    style->Colors[ImGuiCol_FrameBgHovered]   = ImVec4(0.869346734, 0.450980392, 0.211764706, 0.5);
+    style->Colors[ImGuiCol_FrameBgActive]    = ImVec4(0.919346734, 0.500980392, 0.261764706, 0.6);
+    style->Colors[ImGuiCol_ButtonHovered]    = ImVec4(0.869346734, 0.450980392, 0.211764706, 0.5);
+    style->Colors[ImGuiCol_ButtonActive]     = ImVec4(0.919346734, 0.500980392, 0.261764706, 0.6);
+    style->Colors[ImGuiCol_SliderGrab]       = ImVec4(0.869346734, 0.450980392, 0.211764706, 1);
+    style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.899346734, 0.480980392, 0.241764706, 1);
+    
+    
+    ImGui::BeginGroup();
+    draw_tab(style, "Aimbot", &tab, 0);
+    draw_tab(style, "ESP", &tab, 1);
+    draw_tab(style, "Visuals", &tab, 2);
+    draw_tab(style, "Misc", &tab, 3);
 
     switch (tab) {
     case 0:
-      draw_aim_tab(ctx);
+      draw_aim_tab();
       break;
     case 1:
-      draw_esp_tab(ctx);
-      break;
+      draw_esp_tab();
+      break;      
     case 2:
-      draw_visuals_tab(ctx);
+      draw_visuals_tab();
       break;
     case 3:
-      draw_misc_tab(ctx);
+      draw_misc_tab();
       break;
     }
   }
-  nk_end(ctx);
+  
+  ImGui::End();  
 }
+

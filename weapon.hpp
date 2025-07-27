@@ -743,6 +743,28 @@ public:
     return get_type_id_fn(this);
   }
 
+  bool is_melee(void) {
+    int weapon_type_id = this->get_type_id();
+    switch (weapon_type_id) {
+    case TF_WEAPON_BAT:
+    case TF_WEAPON_BAT_WOOD:
+    case TF_WEAPON_SWORD:
+    case TF_WEAPON_FIREAXE:
+    case TF_WEAPON_FISTS:
+    case TF_WEAPON_BAT_FISH:
+    case TF_WEAPON_BAT_GIFTWRAP:
+    case TF_WEAPON_BONESAW:
+    case TF_WEAPON_BOTTLE:
+    case TF_WEAPON_CLUB:
+    case TF_WEAPON_CROWBAR:
+    case TF_WEAPON_KNIFE:
+    case TF_WEAPON_WRENCH:
+      return true;
+    }
+
+    return false;
+  }  
+
   bool can_headshot(void) {
     int weapon_type_id = this->get_type_id();
     if (weapon_type_id == TF_WEAPON_SNIPERRIFLE ||
