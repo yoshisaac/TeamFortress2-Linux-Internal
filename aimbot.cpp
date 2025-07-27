@@ -86,8 +86,11 @@ void aimbot(user_cmd* user_cmd) {
   for (unsigned int i = 1; i <= entity_list->get_max_entities(); ++i) {
     Player* player = entity_list->player_from_index(i);
 
+    Weapon* weapon = localplayer->get_weapon();
+
     if (player == nullptr || 
-	player == localplayer || 
+	player == localplayer ||
+	weapon == nullptr ||
 	player->is_dormant() || 
 	(player->get_team() == localplayer->get_team() && friendlyfire == false) ||
 	player->get_lifestate() != 1 ||
@@ -101,8 +104,7 @@ void aimbot(user_cmd* user_cmd) {
       if (localplayer->is_scoped() && player->get_health() > 50)
 	bone = player->get_head_bone();
     } else if (localplayer->get_class() == CLASS_SPY) {
-      Weapon* weapon = localplayer->get_weapon();
-      if (weapon != nullptr && weapon->can_headshot())
+      if (weapon->can_headshot())
 	bone = player->get_head_bone();
     } else {
       bone = 2;
@@ -145,9 +147,9 @@ void aimbot(user_cmd* user_cmd) {
       target_player = nullptr;
 
     
-    if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && config.aimbot.auto_shoot == true && target_player == player && localplayer->can_shoot())
+    if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && config.aimbot.auto_shoot == true && target_player == player && (localplayer->can_shoot() && !weapon->is_melee()))
       user_cmd->buttons |= 1;    
-      
+    
     if (((is_button_down(config.aimbot.key) && config.aimbot.use_key) || !config.aimbot.use_key) && (user_cmd->buttons & 1) != 0 && target_player == player)
       user_cmd->view_angles = view_angles;
 

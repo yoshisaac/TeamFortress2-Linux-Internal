@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_scancode.h>
+#include <SDL2/SDL_mouse.h>
+#include <SDL2/SDL_keyboard.h>
 /*
 #include <cstdint>
 #define NK_INCLUDE_FIXED_TYPES
@@ -29,7 +31,7 @@ enum input_type {
 
 struct button {
   int button;
-  input_type button_type;
+  bool waiting = false;
 };
 
 struct Aim {
@@ -39,7 +41,7 @@ struct Aim {
   
   nk_bool silent = true;
   
-  struct button key = {.button = 1, .button_type = INPUT_MOUSE};
+  struct button key = {.button = -SDL_BUTTON_X1};
   nk_bool use_key = true;
   
   float fov = 45;
@@ -68,7 +70,7 @@ struct Visuals {
   nk_bool hide_scope = false;
   nk_bool remove_zoom = false;
 
-  struct button thirdperson_key = {.button = SDL_SCANCODE_LALT, .button_type = INPUT_KEY};
+  struct button thirdperson_key = {.button = SDL_SCANCODE_LALT};
   nk_bool thirdperson = false;
   
   nk_bool override_fov = false;
@@ -92,9 +94,7 @@ inline static Config config;
 
 
 static bool is_button_down(struct button button) {
-  return true;
-  /*
-  if (button.button_type == INPUT_KEY) {
+  if (button.button >= 0) {
   
     const uint8_t* keys = SDL_GetKeyboardState(NULL);
   
@@ -103,10 +103,10 @@ static bool is_button_down(struct button button) {
     }
 
     return false;
-  } else if (button.button_type == INPUT_MOUSE) {
+  } else {
     Uint32 mouse_state = SDL_GetMouseState(NULL, NULL);
 
-    if (mouse_state & SDL_BUTTON(button.button))
+    if (mouse_state & SDL_BUTTON(-button.button))
       return true;
 
     return false;
@@ -114,7 +114,6 @@ static bool is_button_down(struct button button) {
   }  
 
   return false;
-  */
 }
 
 static void get_button_down(struct button* button) {

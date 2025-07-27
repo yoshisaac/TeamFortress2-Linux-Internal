@@ -236,7 +236,7 @@ void exit() {
 
   dlclose(lib_sdl_handle);
 
-  //if (menu_focused == true)
-  //  surface->set_cursor_visible(!menu_focused);
+  if (menu_focused == true)
+    surface->set_cursor_visible(!menu_focused);
 }
 
