@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo pacman -S base-devel sdl2 gdb glew
+sudo pacman -S base-devel cmake sdl2 gdb glew
 
 cd /tmp
 git clone https://aur.archlinux.org/glew-2.1.git
