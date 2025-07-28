@@ -11,7 +11,7 @@ It internally (as a program that is injected inside tf2's process) reads and wri
 Clone the repo using `git`.  
 
 ```bash
-$ git clone https://github.com/yoshisaac/TeamFortress2-Linux-Internal.git
+$ git clone https://github.com/Doctor-Coomer/TeamFortress2-Linux-Internal.git
 $ cd TeamFortress2-Linux-Internal/
 ```
 
