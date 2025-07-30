@@ -313,7 +313,7 @@ public:
     float cd = weapon->get_next_attack();
     float time = this->get_tickbase() * 0.015f; // i'm gonna explode - rosne
     
-    return (cd < time);
+    return (cd <= time);
   }
   
   Entity* to_entity(void) {
